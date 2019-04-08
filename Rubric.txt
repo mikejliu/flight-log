@@ -21,3 +21,5 @@ Best Practices (5 points)
     1 All pages pass the html validator
 
 Creative Portion (20 points)
+
+Approved by: Wentao Wu
