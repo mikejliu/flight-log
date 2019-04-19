@@ -109,6 +109,15 @@ class App extends Component {
     });
   };
 
+  login = (email, password) => {
+    
+
+    axios.post("http://localhost:3001/api/login", {
+      email: email,
+      password: password
+    });
+  };
+
 
   // here is our UI
   // it is easy to understand their functions when you 
@@ -200,6 +209,30 @@ class App extends Component {
             Create user
           </button>
         </div>
+
+        <div style={{ padding: "10px" }}>
+          <input
+            type="text"
+            style={{ width: "200px" }}
+            onChange={e => this.setState({ user_email: e.target.value })}
+            placeholder="email"
+          />
+          <input
+            type="text"
+            style={{ width: "200px" }}
+            onChange={e => this.setState({ user_password: e.target.value })}
+            placeholder="password"
+          />
+          <button
+            onClick={() =>
+              this.login(this.state.user_email, this.state.user_password)
+            }
+          >
+            Login
+          </button>
+        </div>
+
+
       </div>
     );
   }

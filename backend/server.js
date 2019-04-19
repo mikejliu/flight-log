@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const logger = require("morgan");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
+const session = require('express-session');
 
 
 const flightSchema = new Schema(
@@ -50,6 +51,29 @@ userSchema.pre('save', function (next) {
     next();
   })
 });
+userSchema.statics.authenticate = function (email, password) {
+  User.findOne({ email: email })
+    .exec(function (err, user) {
+      if (err) {
+        console.log(err);
+        return;
+      } else if (!user) {
+        var err = new Error('User not found.');
+        err.status = 401;
+        console.log(err);
+        return;
+      }
+      bcrypt.compare(password, user.password, function (err, result) {
+        if (result === true) {
+          console.log("success!!!");
+          return;
+        } else {
+          console.log(user);
+          return;
+        }
+      })
+    });
+}
 const User = mongoose.model('User', userSchema);
 
 
@@ -57,6 +81,11 @@ const User = mongoose.model('User', userSchema);
 const API_PORT = 3001;
 const app = express();
 app.use(cors());
+app.use(session({
+  secret: 'work hard',
+  resave: true,
+  saveUninitialized: false
+}));
 const router = express.Router();
 
 // this is our MongoDB database
@@ -151,6 +180,18 @@ router.post("/createUser", (req, res) => {
     return res.json({ success: true });
   });
 });
+
+router.post("/login", (req, res) => {
+  let data = new User();
+
+  
+  data.email = req.body.email;
+  
+  data.password = req.body.password;
+  
+  User.authenticate(data.email, data.password);
+});
+
 
 
 
