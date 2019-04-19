@@ -19,26 +19,37 @@ const flightSchema = new Schema(
 );
 const Flight = mongoose.model('Flight', flightSchema);
 
-var userSchema = new Schema({
-  email: {
-    type: String,
-    unique: true,
-    required: true,
-    trim: true
+var userSchema = new Schema(
+  {
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+      trim: true
+    },
+    username: {
+      type: String,
+      unique: true,
+      required: true,
+      trim: true
+    },
+    password: {
+      type: String,
+      required: true,
+    }
   },
-  username: {
-    type: String,
-    unique: true,
-    required: true,
-    trim: true
-  },
-  password: {
-    type: String,
-    required: true,
-  }
-},
-{
-  collection: 'users' });
+  {collection: 'users' }
+);
+userSchema.pre('save', function (next) {
+  var user = this;
+  bcrypt.hash(user.password, 10, function (err, hash){
+    if (err) {
+      return next(err);
+    }
+    user.password = hash;
+    next();
+  })
+});
 const User = mongoose.model('User', userSchema);
 
 
@@ -141,16 +152,7 @@ router.post("/createUser", (req, res) => {
   });
 });
 
-userSchema.pre('save', function (next) {
-  var user = this;
-  bcrypt.hash(user.password, 10, function (err, hash){
-    if (err) {
-      return next(err);
-    }
-    user.password = hash;
-    next();
-  })
-});
+
 
 // append /api for our http requests
 app.use("/api", router);
