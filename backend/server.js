@@ -4,18 +4,44 @@ var cors = require('cors');
 const bodyParser = require("body-parser");
 const logger = require("morgan");
 const Schema = mongoose.Schema;
+const bcrypt = require("bcrypt");
 
 
-const flightsSchema = new Schema(
+const flightSchema = new Schema(
   {
     id: Number,
-    message: String
+    message: String,
+    username: String
   },
-  { timestamps: true,
+  {
     collection: 'flights' }
   
 );
-const Flight = mongoose.model('Flight', flightsSchema);
+const Flight = mongoose.model('Flight', flightSchema);
+
+var userSchema = new Schema({
+  email: {
+    type: String,
+    unique: true,
+    required: true,
+    trim: true
+  },
+  username: {
+    type: String,
+    unique: true,
+    required: true,
+    trim: true
+  },
+  password: {
+    type: String,
+    required: true,
+  }
+},
+{
+  collection: 'users' });
+const User = mongoose.model('User', userSchema);
+
+
 
 const API_PORT = 3001;
 const app = express();
@@ -92,6 +118,38 @@ router.post("/putData", (req, res) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
   });
+});
+
+
+router.post("/createUser", (req, res) => {
+  let data = new User();
+
+  const { email, username, password } = req.body;
+
+  if (!email || !username || !password) {
+    return res.json({
+      success: false,
+      error: "INVALID INPUTS"
+    });
+  }
+  data.email = email;
+  data.username = username;
+  data.password = password;
+  data.save(err => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true });
+  });
+});
+
+userSchema.pre('save', function (next) {
+  var user = this;
+  bcrypt.hash(user.password, 10, function (err, hash){
+    if (err) {
+      return next(err);
+    }
+    user.password = hash;
+    next();
+  })
 });
 
 // append /api for our http requests

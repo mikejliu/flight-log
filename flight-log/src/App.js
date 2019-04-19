@@ -10,7 +10,10 @@ class App extends Component {
     intervalIsSet: false,
     idToDelete: null,
     idToUpdate: null,
-    objectToUpdate: null
+    objectToUpdate: null,
+    user_email: null,
+    user_username: null,
+    user_password: null
   };
 
   // when component mounts, first thing it does is fetch all existing data in our db
@@ -96,6 +99,16 @@ class App extends Component {
     });
   };
 
+  createUser = (email, username, password) => {
+    
+
+    axios.post("http://localhost:3001/api/createUser", {
+      email: email,
+      username: username,
+      password: password
+    });
+  };
+
 
   // here is our UI
   // it is easy to understand their functions when you 
@@ -156,6 +169,35 @@ class App extends Component {
             }
           >
             UPDATE
+          </button>
+        </div>
+
+
+        <div style={{ padding: "10px" }}>
+          <input
+            type="text"
+            style={{ width: "200px" }}
+            onChange={e => this.setState({ user_email: e.target.value })}
+            placeholder="email"
+          />
+          <input
+            type="text"
+            style={{ width: "200px" }}
+            onChange={e => this.setState({ user_username: e.target.value })}
+            placeholder="username"
+          />
+          <input
+            type="text"
+            style={{ width: "200px" }}
+            onChange={e => this.setState({ user_password: e.target.value })}
+            placeholder="password"
+          />
+          <button
+            onClick={() =>
+              this.createUser(this.state.user_email, this.state.user_username, this.state.user_password)
+            }
+          >
+            Create user
           </button>
         </div>
       </div>
