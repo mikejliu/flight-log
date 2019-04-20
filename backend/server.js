@@ -23,12 +23,6 @@ const Flight = mongoose.model('Flight', flightSchema);
 
 var userSchema = new Schema(
   {
-    email: {
-      type: String,
-      unique: true,
-      required: true,
-      trim: true
-    },
     username: {
       type: String,
       unique: true,
@@ -52,8 +46,8 @@ userSchema.pre('save', function (next) {
     next();
   })
 });
-userSchema.statics.authenticate = function (email, password, callback) {
-  User.findOne({ email: email })
+userSchema.statics.authenticate = function (username, password, callback) {
+  User.findOne({ username: username })
     .exec(function (err, user) {
       if (err) {
         return callback(err);
@@ -167,15 +161,14 @@ router.post("/putData", (req, res) => {
 router.post("/createUser", (req, res) => {
   let data = new User();
 
-  const { email, username, password } = req.body;
+  const { username, password } = req.body;
 
-  if (!email || !username || !password) {
+  if (!username || !password) {
     return res.json({
       success: false,
       error: "INVALID INPUTS"
     });
   }
-  data.email = email;
   data.username = username;
   data.password = password;
   data.save(err => {
@@ -185,13 +178,13 @@ router.post("/createUser", (req, res) => {
 });
 
 router.post("/login", (req, res) => {
-  if(!req.body.email || !req.body.password){
+  if(!req.body.username || !req.body.password){
     return res.json({
       success: false,
       error: "INVALID INPUTS"
     });
   }
-  User.authenticate(req.body.email, req.body.password, (err, user) => {
+  User.authenticate(req.body.username, req.body.password, (err, user) => {
     if (err) return res.json({ success: false, error: err.message });
     //console.log(req);
     req.session.username = user.username;

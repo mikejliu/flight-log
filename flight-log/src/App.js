@@ -13,10 +13,11 @@ class App extends Component {
     idToDelete: null,
     idToUpdate: null,
     objectToUpdate: null,
-    user_email: null,
     user_username: null,
     user_password: null,
-    logged_in: false
+    logged_in: false,
+    login_warning: "",
+    create_user_warning: ""
   };
   
 
@@ -77,7 +78,7 @@ class App extends Component {
   deleteFromDB = idTodelete => {
     let objIdToDelete = null;
     this.state.data.forEach(dat => {
-      if (dat.id == idTodelete) {
+      if (dat.id === idTodelete) {
         objIdToDelete = dat._id;
       }
     });
@@ -95,7 +96,7 @@ class App extends Component {
   updateDB = (idToUpdate, updateToApply) => {
     let objIdToUpdate = null;
     this.state.data.forEach(dat => {
-      if (dat.id == idToUpdate) {
+      if (dat.id === idToUpdate) {
         objIdToUpdate = dat._id;
       }
     });
@@ -106,35 +107,40 @@ class App extends Component {
     });
   };
 
-  createUser = (email, username, password) => {
+  createUser = (username, password) => {
     
 
     axios.post("http://localhost:3001/api/createUser", {
-      email: email,
       username: username,
       password: password
     }).then(function (response) {
       console.log(response.data);
       if(!response.data.success){
         console.log(response.data.error);
+      }else{
+        this.setState({create_user_warning:"User created successfully. Please login"});
       }
-    })
+    }.bind(this))
     .catch(function (error) {
       console.log(error);
     });
   };
 
-  login = (email, password) => {
+  login = (username, password) => {
     
 
     axios.post("http://localhost:3001/api/login", {
-      email: email,
+      username: username,
       password: password
     }).then(function (response) {
       console.log(response.data);
       if(!response.data.success){
-        console.log(response.data.error);
+        this.setState({login_warning:response.data.error});
       }else{
+        this.setState({login_warning:""});
+        this.setState({create_user_warning:""});
+        this.setState({user_username:null});
+        this.setState({user_password:null});
         this.setState({logged_in:true});
       }
     }.bind(this))
@@ -247,9 +253,28 @@ class App extends Component {
             <input
               type="text"
               style={{ width: "200px" }}
-              onChange={e => this.setState({ user_email: e.target.value })}
-              placeholder="email"
+              onChange={e => this.setState({ user_username: e.target.value })}
+              placeholder="username"
             />
+            <input
+              type="text"
+              style={{ width: "200px" }}
+              onChange={e => this.setState({ user_password: e.target.value })}
+              placeholder="password"
+            />
+            <button
+              onClick={() =>
+                this.createUser(this.state.user_username, this.state.user_password)
+              }
+            >
+              Create user
+            </button>
+            <span>
+              {this.state.create_user_warning}
+            </span>
+          </div>
+  
+          <div style={{ padding: "10px" }}>
             <input
               type="text"
               style={{ width: "200px" }}
@@ -264,33 +289,14 @@ class App extends Component {
             />
             <button
               onClick={() =>
-                this.createUser(this.state.user_email, this.state.user_username, this.state.user_password)
-              }
-            >
-              Create user
-            </button>
-          </div>
-  
-          <div style={{ padding: "10px" }}>
-            <input
-              type="text"
-              style={{ width: "200px" }}
-              onChange={e => this.setState({ user_email: e.target.value })}
-              placeholder="email"
-            />
-            <input
-              type="text"
-              style={{ width: "200px" }}
-              onChange={e => this.setState({ user_password: e.target.value })}
-              placeholder="password"
-            />
-            <button
-              onClick={() =>
-                this.login(this.state.user_email, this.state.user_password)
+                this.login(this.state.user_username, this.state.user_password)
               }
             >
               Login
             </button>
+            <span>
+              {this.state.login_warning}
+            </span>
           </div>
   
   
