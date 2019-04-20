@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import axios from "axios";
+axios.defaults.withCredentials = true;
 
 class App extends Component {
   // initialize our state 
+  
   state = {
     data: [],
     id: 0,
@@ -13,8 +15,10 @@ class App extends Component {
     objectToUpdate: null,
     user_email: null,
     user_username: null,
-    user_password: null
+    user_password: null,
+    logged_in: false
   };
+  
 
   // when component mounts, first thing it does is fetch all existing data in our db
   // then we incorporate a polling logic so that we can easily see if our db has 
@@ -30,6 +34,9 @@ class App extends Component {
   // never let a process live forever 
   // always kill a process everytime we are done using it
   componentWillUnmount() {
+    if(this.state.logged_in){
+      this.logout();
+    }
     if (this.state.intervalIsSet) {
       clearInterval(this.state.intervalIsSet);
       this.setState({ intervalIsSet: null });
@@ -106,6 +113,14 @@ class App extends Component {
       email: email,
       username: username,
       password: password
+    }).then(function (response) {
+      console.log(response.data);
+      if(!response.data.success){
+        console.log(response.data.error);
+      }
+    })
+    .catch(function (error) {
+      console.log(error);
     });
   };
 
@@ -115,18 +130,46 @@ class App extends Component {
     axios.post("http://localhost:3001/api/login", {
       email: email,
       password: password
+    }).then(function (response) {
+      console.log(response.data);
+      if(!response.data.success){
+        console.log(response.data.error);
+      }else{
+        this.setState({logged_in:true});
+      }
+    }.bind(this))
+    .catch(function (error) {
+      console.log(error);
     });
+  
   };
 
+  logout = () => {
+    
+
+    axios.get("http://localhost:3001/api/logout").then(function (response) {
+      console.log(response.data);
+      if(!response.data.success){
+        console.log(response.data.error);
+      }else{
+        this.setState({logged_in:false});
+      }
+    }.bind(this))
+    .catch(function (error) {
+      console.log(error);
+    });
+  
+  };
 
   // here is our UI
   // it is easy to understand their functions when you 
   // see them render into our screen
   render() {
-    const { data } = this.state;
-    return (
-      <div>
-        <ul>
+    const { data, logged_in } = this.state;
+    if(logged_in){
+      return(
+        <div>
+          <ul>
           {data.length <= 0
             ? "NO DB ENTRIES YET"
             : data.map(dat => (
@@ -181,60 +224,80 @@ class App extends Component {
           </button>
         </div>
 
-
-        <div style={{ padding: "10px" }}>
-          <input
-            type="text"
-            style={{ width: "200px" }}
-            onChange={e => this.setState({ user_email: e.target.value })}
-            placeholder="email"
-          />
-          <input
-            type="text"
-            style={{ width: "200px" }}
-            onChange={e => this.setState({ user_username: e.target.value })}
-            placeholder="username"
-          />
-          <input
-            type="text"
-            style={{ width: "200px" }}
-            onChange={e => this.setState({ user_password: e.target.value })}
-            placeholder="password"
-          />
-          <button
-            onClick={() =>
-              this.createUser(this.state.user_email, this.state.user_username, this.state.user_password)
-            }
-          >
-            Create user
-          </button>
+        <div>
+        <button
+              onClick={() =>
+                this.logout()
+              }
+            >
+              Logout
+            </button>
+        </div>
         </div>
 
-        <div style={{ padding: "10px" }}>
-          <input
-            type="text"
-            style={{ width: "200px" }}
-            onChange={e => this.setState({ user_email: e.target.value })}
-            placeholder="email"
-          />
-          <input
-            type="text"
-            style={{ width: "200px" }}
-            onChange={e => this.setState({ user_password: e.target.value })}
-            placeholder="password"
-          />
-          <button
-            onClick={() =>
-              this.login(this.state.user_email, this.state.user_password)
-            }
-          >
-            Login
-          </button>
+      );
+    }else{
+      return (
+        <div>
+          
+          
+  
+          
+          <div style={{ padding: "10px" }}>
+            <input
+              type="text"
+              style={{ width: "200px" }}
+              onChange={e => this.setState({ user_email: e.target.value })}
+              placeholder="email"
+            />
+            <input
+              type="text"
+              style={{ width: "200px" }}
+              onChange={e => this.setState({ user_username: e.target.value })}
+              placeholder="username"
+            />
+            <input
+              type="text"
+              style={{ width: "200px" }}
+              onChange={e => this.setState({ user_password: e.target.value })}
+              placeholder="password"
+            />
+            <button
+              onClick={() =>
+                this.createUser(this.state.user_email, this.state.user_username, this.state.user_password)
+              }
+            >
+              Create user
+            </button>
+          </div>
+  
+          <div style={{ padding: "10px" }}>
+            <input
+              type="text"
+              style={{ width: "200px" }}
+              onChange={e => this.setState({ user_email: e.target.value })}
+              placeholder="email"
+            />
+            <input
+              type="text"
+              style={{ width: "200px" }}
+              onChange={e => this.setState({ user_password: e.target.value })}
+              placeholder="password"
+            />
+            <button
+              onClick={() =>
+                this.login(this.state.user_email, this.state.user_password)
+              }
+            >
+              Login
+            </button>
+          </div>
+  
+  
         </div>
-
-
-      </div>
-    );
+      );
+    }
+    
   }
 }
 

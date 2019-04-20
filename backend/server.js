@@ -6,6 +6,7 @@ const logger = require("morgan");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
 const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 
 
 const flightSchema = new Schema(
@@ -51,25 +52,23 @@ userSchema.pre('save', function (next) {
     next();
   })
 });
-userSchema.statics.authenticate = function (email, password) {
+userSchema.statics.authenticate = function (email, password, callback) {
   User.findOne({ email: email })
     .exec(function (err, user) {
       if (err) {
-        console.log(err);
-        return;
+        return callback(err);
       } else if (!user) {
         var err = new Error('User not found.');
         err.status = 401;
-        console.log(err);
-        return;
+        return callback(err);
       }
       bcrypt.compare(password, user.password, function (err, result) {
         if (result === true) {
-          console.log("success!!!");
-          return;
+          return callback(null, user);
         } else {
-          console.log(user);
-          return;
+          var err = new Error('Incorrect password.');
+          err.status = 401;
+          return callback(err);
         }
       })
     });
@@ -79,14 +78,10 @@ const User = mongoose.model('User', userSchema);
 
 
 const API_PORT = 3001;
-const app = express();
-app.use(cors());
-app.use(session({
-  secret: 'work hard',
-  resave: true,
-  saveUninitialized: false
-}));
 const router = express.Router();
+const app = express();
+app.use(cors({credentials: true, origin: true}));
+
 
 // this is our MongoDB database
 const dbRoute = "mongodb+srv://guest:guest_passwd@cluster0-tw5wq.mongodb.net/flight-log?retryWrites=true";
@@ -96,6 +91,12 @@ mongoose.connect(
   dbRoute,
   { useNewUrlParser: true }
 );
+app.use(session({
+  secret: 'work hard',
+  resave: false,
+  saveUninitialized: false,
+  store: new MongoStore({ mongooseConnection: mongoose.connection })
+}));
 
 let db = mongoose.connection;
 
@@ -154,6 +155,8 @@ router.post("/putData", (req, res) => {
   }
   data.message = message;
   data.id = id;
+  console.log(req.session.username);
+  data.username = req.session.username;
   data.save(err => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
@@ -182,16 +185,35 @@ router.post("/createUser", (req, res) => {
 });
 
 router.post("/login", (req, res) => {
-  let data = new User();
-
-  
-  data.email = req.body.email;
-  
-  data.password = req.body.password;
-  
-  User.authenticate(data.email, data.password);
+  if(!req.body.email || !req.body.password){
+    return res.json({
+      success: false,
+      error: "INVALID INPUTS"
+    });
+  }
+  User.authenticate(req.body.email, req.body.password, (err, user) => {
+    if (err) return res.json({ success: false, error: err.message });
+    //console.log(req);
+    req.session.username = user.username;
+    console.log(req.session.username);
+    return res.json({ success: true, user: user });
+  });
 });
 
+router.get('/logout', function(req, res) {
+  if (req.session) {
+    // delete session object
+    console.log(req.session.username);
+    req.session.destroy(function(err) {
+      if(err) {
+        return res.json({ success: false, error: err });
+      } else {
+        //console.log(req.session.username);
+        return res.json({ success: true });
+      }
+    });
+  }
+});
 
 
 
