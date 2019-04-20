@@ -25,11 +25,11 @@ class App extends Component {
   // then we incorporate a polling logic so that we can easily see if our db has 
   // changed and implement those changes into our UI
   componentDidMount() {
-    this.getDataFromDb();
-    if (!this.state.intervalIsSet) {
-      let interval = setInterval(this.getDataFromDb, 1000);
-      this.setState({ intervalIsSet: interval });
-    }
+    //this.getDataFromDb();
+    // if (!this.state.intervalIsSet) {
+    //   let interval = setInterval(this.getDataFromDb, 1000);
+    //   this.setState({ intervalIsSet: interval });
+    // }
   }
 
   // never let a process live forever 
@@ -38,10 +38,10 @@ class App extends Component {
     if(this.state.logged_in){
       this.logout();
     }
-    if (this.state.intervalIsSet) {
-      clearInterval(this.state.intervalIsSet);
-      this.setState({ intervalIsSet: null });
-    }
+    // if (this.state.intervalIsSet) {
+    //   clearInterval(this.state.intervalIsSet);
+    //   this.setState({ intervalIsSet: null });
+    // }
   }
 
   // just a note, here, in the front end, we use the id key of our data object 
@@ -52,9 +52,16 @@ class App extends Component {
   // our first get method that uses our backend api to 
   // fetch data from our data base
   getDataFromDb = () => {
-    fetch("http://localhost:3001/api/getData")
-      .then(data => data.json())
-      .then(res => this.setState({ data: res.data }));
+    // axios.get("http://localhost:3001/api/getData")
+    //   .then(data => data.json())
+    //   .then(res => this.setState({ data: res.data }));
+    axios.get("http://localhost:3001/api/getData").then(function (response) {
+      console.log(response.data.data);
+      this.setState({ data: response.data.data })
+    }.bind(this))
+    .catch(function (error) {
+      console.log(error);
+    });
   };
 
   // our put method that uses our backend api
@@ -69,6 +76,14 @@ class App extends Component {
     axios.post("http://localhost:3001/api/putData", {
       id: idToBeAdded,
       message: message
+    }).then(function (response) {
+      console.log(response.data);
+      if(response.data.success){
+        this.getDataFromDb();
+      }
+    }.bind(this))
+    .catch(function (error) {
+      console.log(error);
     });
   };
 
@@ -137,6 +152,7 @@ class App extends Component {
       if(!response.data.success){
         this.setState({login_warning:response.data.error});
       }else{
+        this.getDataFromDb();
         this.setState({login_warning:""});
         this.setState({create_user_warning:""});
         this.setState({user_username:null});
@@ -159,6 +175,7 @@ class App extends Component {
         console.log(response.data.error);
       }else{
         this.setState({logged_in:false});
+        this.setState({data:[]});
       }
     }.bind(this))
     .catch(function (error) {

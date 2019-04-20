@@ -108,7 +108,8 @@ app.use(logger("dev"));
 // this is our get method
 // this method fetches all available data in our database
 router.get("/getData", (req, res) => {
-  Flight.find((err, data) => {
+  console.log(req.session.username);
+  Flight.find({'username': req.session.username},(err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
@@ -151,9 +152,9 @@ router.post("/putData", (req, res) => {
   data.id = id;
   console.log(req.session.username);
   data.username = req.session.username;
-  data.save(err => {
+  data.save((err, data) => {
     if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true });
+    return res.json({ success: true, data: data });
   });
 });
 
