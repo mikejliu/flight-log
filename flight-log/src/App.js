@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
+import { runInThisContext } from "vm";
 axios.defaults.withCredentials = true;
 
 class App extends Component {
@@ -18,7 +19,8 @@ class App extends Component {
     logged_in: false,
     login_warning: "",
     create_user_warning: "",
-    img: ""
+    img: "",
+    selectedImg: ""
   };
   
 
@@ -104,19 +106,19 @@ class App extends Component {
     });
   };
 
-  // uploadImage = () =>{
-  //   console.log("inside uploadImage");
-  //   var formData = new FormData();
-  //   var imagefile = document.querySelector("#imageToUpload");
-  //   console.log(imagefile.files[0]);
-  //   formData.append("image", imagefile.files[0]);
-  //   axios.post("http://localhost:3001/api/photo", formData, {
-  //     headers: {
-  //       'Content-Type': 'multipart/form-data'
-  //     }
-  //   })
-  // }
+  uploadImage = e =>{
+    e.preventDefault();
+    console.log("inside uploadImage");
+    var formData = new FormData();
   
+    formData.append("avatar", this.state.selectedImg);
+    axios.post("http://localhost:3001/api/photo", formData);
+  }
+  
+  changeSelectedImage = e => {
+    this.setState({selectedImg: e.target.files[0]});
+  }
+
   // our delete method that uses our backend api 
   // to remove existing database information
   deleteFromDB = idTodelete => {
@@ -276,8 +278,8 @@ class App extends Component {
           </button>
         </div>
         <div>
-        <form action="api/photo" method="post" enctype="multipart/form-data">
-        <input type="file" name="avatar" id="imageToUpload"/>
+        <form onSubmit={e => this.uploadImage(e)}>
+        <input type="file" name="avatar" id="imageToUpload" onChange={e => this.changeSelectedImage(e)}/>
         <input type="submit" value="upload"/>
         </form>
         </div>
