@@ -17,7 +17,8 @@ class App extends Component {
     user_password: null,
     logged_in: false,
     login_warning: "",
-    create_user_warning: ""
+    create_user_warning: "",
+    img: ""
   };
   
 
@@ -62,8 +63,24 @@ class App extends Component {
     .catch(function (error) {
       console.log(error);
     });
+    axios.get("http://localhost:3001/api/getImage").then(function (response) {
+      console.log(response.data.data[0]);
+      let base64Flag = 'data:image/png;base64,';
+      let imageStr = this.arrayBufferToBase64(response.data.data[0].img.data.data);
+      this.setState({ img: base64Flag + imageStr })
+    }.bind(this))
+    .catch(function (error) {
+      console.log(error);
+    });
   };
 
+  // https://medium.com/@colinrlly/send-store-and-show-images-with-react-express-and-mongodb-592bc38a9ed
+  arrayBufferToBase64(buffer) {
+    var binary = '';
+    var bytes = [].slice.call(new Uint8Array(buffer));
+    bytes.forEach((b) => binary += String.fromCharCode(b));
+    return window.btoa(binary);
+};
   // our put method that uses our backend api
   // to create new query into our data base
   putDataToDB = message => {
@@ -87,7 +104,19 @@ class App extends Component {
     });
   };
 
-
+  // uploadImage = () =>{
+  //   console.log("inside uploadImage");
+  //   var formData = new FormData();
+  //   var imagefile = document.querySelector("#imageToUpload");
+  //   console.log(imagefile.files[0]);
+  //   formData.append("image", imagefile.files[0]);
+  //   axios.post("http://localhost:3001/api/photo", formData, {
+  //     headers: {
+  //       'Content-Type': 'multipart/form-data'
+  //     }
+  //   })
+  // }
+  
   // our delete method that uses our backend api 
   // to remove existing database information
   deleteFromDB = idTodelete => {
@@ -246,7 +275,16 @@ class App extends Component {
             UPDATE
           </button>
         </div>
+        <div>
+        <form action="api/photo" method="post" enctype="multipart/form-data">
+        <input type="file" name="avatar" id="imageToUpload"/>
+        <input type="submit" value="upload"/>
+        </form>
+        </div>
 
+        <img
+            src={this.state.img}
+            alt='Helpful alt text'/>
         <div>
         <button
               onClick={() =>

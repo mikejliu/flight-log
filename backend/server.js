@@ -7,6 +7,8 @@ const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
+const fs = require("fs");
+const multer = require("multer");
 
 
 const flightSchema = new Schema(
@@ -20,7 +22,16 @@ const flightSchema = new Schema(
   
 );
 const Flight = mongoose.model('Flight', flightSchema);
-
+const imageSchema = new Schema(
+  {
+    img:{
+      data: Buffer,
+      contentType: String
+    }
+  },
+  {collection: 'images' }
+);
+const Image = mongoose.model('Image',imageSchema);
 var userSchema = new Schema(
   {
     username: {
@@ -92,6 +103,12 @@ app.use(session({
   store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 
+app.use(multer({ dest: './uploads/',
+  rename: function (fieldname, filename) {
+    return filename;
+  },
+ }).single("avatar"));
+
 let db = mongoose.connection;
 
 db.once("open", () => console.log("connected to the database"));
@@ -110,6 +127,13 @@ app.use(logger("dev"));
 router.get("/getData", (req, res) => {
   console.log(req.session.username);
   Flight.find({'username': req.session.username},(err, data) => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true, data: data });
+  });
+});
+
+router.get("/getImage", (req, res) => {
+  Image.find((err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
@@ -209,7 +233,13 @@ router.get('/logout', function(req, res) {
   }
 });
 
-
+router.post('/photo',function(req,res){
+  var newItem = new Image();
+  newItem.img.data = fs.readFileSync(req.file.path)
+  console.log(newItem.img.data);
+  newItem.img.contentType = 'image/png';
+  newItem.save();
+ });
 
 // append /api for our http requests
 app.use("/api", router);
