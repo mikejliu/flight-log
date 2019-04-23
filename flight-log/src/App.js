@@ -368,6 +368,7 @@ class App extends Component {
       return(
         <div>
           <div style={{ padding: "10px" }}>
+          Add Entry <br />
           <DatePicker
             selected={this.state.input_date}
             onChange={this.changeDate}
@@ -409,20 +410,21 @@ class App extends Component {
             style={{ width: "200px" }}
           />
           <button onClick={() => this.putDataToDB()}>
-            ADD
+            Add
           </button>
           <span>
               {this.state.add_warning}
             </span>
         </div>
-        <div>
+        <div style={{ padding: "10px" }}>
+        Upload Image <br />
         <form onSubmit={e => this.uploadImage(e)}>
         <input type="file" name="avatar" id="imageToUpload" onChange={e => this.changeSelectedImage(e)}/>
-        <input type="submit" value="upload"/>
+        <input type="submit" value="Upload"/>
         </form>
         </div>
-        <div>
-          Sort by
+        <div style={{ padding: "10px" }}>
+          Sort by <br />
           <button onClick={() => this.sortDate()}>Date</button>
           <button onClick={() => this.sortAirline()}>Airline</button>
           <button onClick={() => this.sortFlightNumber()}>Flight Number</button>
@@ -457,7 +459,7 @@ class App extends Component {
               <div key={img._id} id={img._id}>
                 <img
                 src={'data:'+img.img.contentType+';base64,'+this.arrayBufferToBase64(img.img.data.data)}
-                alt='Helpful alt text'
+                alt='alt text'
                 style={imgStyle}/>
                 <div style={{textAlign : "center"}}>
                 <button style={{marginLeft: "auto", marginRight: "auto"}} onClick={e => this.deleteImageFromDB(e)}>Delete</button>
@@ -466,7 +468,7 @@ class App extends Component {
               ))}
         </div>
         
-        <div>
+        <div style={{ padding: "10px" }}>
         <button
               onClick={() =>
                 this.logout()
@@ -490,20 +492,20 @@ class App extends Component {
               type="text"
               style={{ width: "200px" }}
               onChange={e => this.setState({ user_username: e.target.value })}
-              placeholder="username"
+              placeholder="Username"
             />
             <input
               type="text"
               style={{ width: "200px" }}
               onChange={e => this.setState({ user_password: e.target.value })}
-              placeholder="password"
+              placeholder="Password"
             />
             <button
               onClick={() =>
                 this.createUser(this.state.user_username, this.state.user_password)
               }
             >
-              Create user
+              Create User
             </button>
             <span>
               {this.state.create_user_warning}
@@ -515,13 +517,13 @@ class App extends Component {
               type="text"
               style={{ width: "200px" }}
               onChange={e => this.setState({ user_username: e.target.value })}
-              placeholder="username"
+              placeholder="Username"
             />
             <input
               type="text"
               style={{ width: "200px" }}
               onChange={e => this.setState({ user_password: e.target.value })}
-              placeholder="password"
+              placeholder="Password"
             />
             <button
               onClick={() =>
