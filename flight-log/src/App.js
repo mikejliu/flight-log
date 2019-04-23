@@ -5,7 +5,6 @@ import "react-datepicker/dist/react-datepicker.css";
 axios.defaults.withCredentials = true;
 
 class App extends Component {
-  // initialize our state 
   state = {
     data: [],
     images: [],
@@ -33,37 +32,23 @@ class App extends Component {
     is_public: false,
     public_users: [],
     public_log: [],
+    view_public: false,
     login_warning: "",
     create_user_warning: "",
     add_warning: ""
   };
   
   componentDidMount() {
-    //this.getDataFromDb();
-    // if (!this.state.intervalIsSet) {
-    //   let interval = setInterval(this.getDataFromDb, 1000);
-    //   this.setState({ intervalIsSet: interval });
-    // }
   }
 
-  // never let a process live forever 
-  // always kill a process everytime we are done using it
   componentWillUnmount() {
     if(this.state.logged_in){
       this.logout();
     }
-    // if (this.state.intervalIsSet) {
-    //   clearInterval(this.state.intervalIsSet);
-    //   this.setState({ intervalIsSet: null });
-    // }
   }
 
   getDataFromDb = () => {
-    // axios.get("http://localhost:3001/api/getData")
-    //   .then(data => data.json())
-    //   .then(res => this.setState({ data: res.data }));
     axios.get("http://localhost:3001/api/getData").then(function (response) {
-      //console.log(response.data.data[0]);
       this.setState({ data: response.data.data })
     }.bind(this))
     .catch(function (error) {
@@ -71,9 +56,6 @@ class App extends Component {
     });
     axios.get("http://localhost:3001/api/getImage").then(function (response) {
       this.setState({ images: response.data.data });
-      // let base64Flag = 'data:image/png;base64,';
-      // let imageStr = this.arrayBufferToBase64(response.data.data[0].img.data.data);
-      // this.setState({ img: base64Flag + imageStr })
     }.bind(this))
     .catch(function (error) {
       console.log(error);
@@ -86,7 +68,6 @@ class App extends Component {
     });
     axios.get("http://localhost:3001/api/getPublicUsers"
       ).then(function (response) {
-        console.log(response.data.data);
         this.setState({ public_users: response.data.data })
       }.bind(this))
       .catch(function (error) {
@@ -97,7 +78,6 @@ class App extends Component {
       axios.get("http://localhost:3001/api/getAirportUsers", {
         params:{airport: this.state.current_airport}
       }).then(function (response) {
-        console.log(this.state.current_airport);
         if(this.state.current_airport === null || this.state.current_airport === "") {
           this.setState({ current_airport_users: [] })
         }
@@ -124,7 +104,6 @@ class App extends Component {
   };
 
   putDataToDB = () => {
-    console.log(this.state.input_date);
 
     axios.post("http://localhost:3001/api/putData", {
       
@@ -137,7 +116,6 @@ class App extends Component {
       reg: this.state.input_reg
 
     }).then(function (response) {
-      console.log(response.data);
       if(!response.data.success){
         this.setState({add_warning:response.data.error});
       }else{
@@ -156,7 +134,6 @@ class App extends Component {
   
     formData.append("avatar", this.state.selectedImg);
     axios.post("http://localhost:3001/api/photo", formData).then(function (response) {
-      console.log(response.data);
       if(response.data.success){
         this.getDataFromDb();
       }
@@ -216,7 +193,6 @@ class App extends Component {
   }
 
   changePublic = () =>{
-    //this.setState({is_public: !this.state.is_public});
     axios.post("http://localhost:3001/api/changePublic", {
       update: { public: !this.state.is_public }
     }).then(function (response) {
@@ -230,42 +206,28 @@ class App extends Component {
   }
 
   viewPublic = e =>{
+    this.setState({view_public: true});
     let publicUsername = e.target.parentNode.id;
     axios.get("http://localhost:3001/api/getPublicLog", {
         params:{username: publicUsername}
       }).then(function (response) {
-      
-        
         this.setState({ public_log: response.data.data })
-        
       }.bind(this))
       .catch(function (error) {
         console.log(error);
       });
   }
   
-  // our update method that uses our backend api
-  // to overwrite existing data base information
-  // updateDB = (idToUpdate, updateToApply) => {
-  //   let objIdToUpdate = null;
-  //   this.state.data.forEach(dat => {
-  //     if (dat.id === idToUpdate) {
-  //       objIdToUpdate = dat._id;
-  //     }
-  //   });
-
-  //   axios.post("http://localhost:3001/api/updateData", {
-  //     id: objIdToUpdate,
-  //     update: { message: updateToApply }
-  //   });
-  // };
+  hidePublic = ()=>{
+    this.setState({view_public: false});
+    this.setState({ public_log: [] });
+  }
 
   createUser = (username, password) => {
     axios.post("http://localhost:3001/api/createUser", {
       username: username,
       password: password
     }).then(function (response) {
-      console.log(response.data);
       if(!response.data.success){
         console.log(response.data.error);
       }else{
@@ -284,7 +246,6 @@ class App extends Component {
       username: username,
       password: password
     }).then(function (response) {
-      console.log(response.data);
       if(!response.data.success){
         this.setState({login_warning:response.data.error});
       }else{
@@ -304,13 +265,17 @@ class App extends Component {
 
   logout = () => {
     axios.get("http://localhost:3001/api/logout").then(function (response) {
-      console.log(response.data);
       if(!response.data.success){
         console.log(response.data.error);
       }else{
-        this.setState({public_log:[]});
         this.setState({logged_in:false});
         this.setState({data:[]});
+        this.setState({images:[]});
+        this.setState({current_airport_users:[]});
+        this.setState({public_users:[]});
+        this.setState({view_public: false});
+        this.setState({public_log:[]});
+        this.setState({input_date:new Date()});
       }
     }.bind(this))
     .catch(function (error) {
@@ -328,7 +293,6 @@ class App extends Component {
   sortDate = () =>{
     this.setState({sort_date:!this.state.sort_date});
     const sort_date = this.state.sort_date;
-    console.log(sort_date);
     this.setState({
       data:this.state.data.sort(function (a, b) {
         let dateA = new Date(a.date);
@@ -413,18 +377,22 @@ class App extends Component {
   }
 
   render() {
-    const { data, images, current_airport_users, logged_in, public_users, public_log } = this.state;
+    const { data, images, current_airport_users, logged_in, public_users, public_log, view_public } = this.state;
     const imgStyle = {
       display: 'block',
       marginLeft: 'auto',
       marginRight: 'auto',
       width: '50%'
     };
+    const titleStyle = {
+      fontWeight : 'bold',
+      fontSize: '18px'
+    }
     if(logged_in){
       return(
         <div>
           <div style={{ padding: "10px" }}>
-          Add Entry <br />
+          <div style={titleStyle}>Add Entry</div>
           <DatePicker
             selected={this.state.input_date}
             onChange={this.changeDate}
@@ -473,14 +441,14 @@ class App extends Component {
             </span>
         </div>
         <div style={{ padding: "10px" }}>
-        Upload Image <br />
+        <div style={titleStyle}>Upload Image</div>
         <form onSubmit={e => this.uploadImage(e)}>
         <input type="file" name="avatar" id="imageToUpload" onChange={e => this.changeSelectedImage(e)}/>
         <input type="submit" value="Upload"/>
         </form>
         </div>
         <div style={{ padding: "10px" }}>
-          Sort by <br />
+          <div style={titleStyle}>Sort by</div>
           <button onClick={() => this.sortDate()}>Date</button>
           <button onClick={() => this.sortAirline()}>Airline</button>
           <button onClick={() => this.sortFlightNumber()}>Flight Number</button>
@@ -494,7 +462,7 @@ class App extends Component {
         {data.length <= 0
           ? "NO ENTRIES YET"
           : data.map(dat => (
-              <li style={{ padding: "10px" }} key={dat._id} id={dat._id}>
+              <li key={dat._id} id={dat._id}>
                 <span style={{ color: "gray" }}> Date: </span> {dat.date} <br />
                 <span style={{ color: "gray" }}> Airline: </span> {dat.airline} <br />
                 <span style={{ color: "gray" }}> Flight Number: </span> {dat.flight_number} <br />
@@ -508,7 +476,7 @@ class App extends Component {
         </ul>
 
         
-        <div>
+        <div style={{ padding: "10px" }}>
         {images.length <= 0
             ? "NO IMAGES YET"
             : images.map(img => (
@@ -524,9 +492,9 @@ class App extends Component {
               ))}
         </div>
         <div style={{ padding: "10px" }}>
-        Your Current Airport <span>
+        <div style={titleStyle}>Your Current Airport <span>
               {this.state.current_airport}
-            </span><br />
+            </span></div>
 
         <input
             type="text"
@@ -536,33 +504,37 @@ class App extends Component {
           />
           <button onClick={() => this.submitCurrentAirport()}>
             Submit
-          </button>
-        </div>
-        {(current_airport_users.length > 0) ? (<div>Current users at {this.state.current_airport}</div>) : (<div>Please update your current airport to see list of users near you</div>)}
-        <ul>
+          </button></div>
+          <div style={{ padding: "10px" }}>
+          {(current_airport_users.length > 0) ? (<div style={titleStyle}>Current Users at {this.state.current_airport}</div>) : (<div>Please update your current airport to see list of users near you</div>)}
+          <ul>
           {current_airport_users.length <= 0
             ? ""
             : current_airport_users.map(user => (
-                <li style={{ padding: "10px" }}>
+                <li>
                   {user.username}
                 </li>
               ))}
         </ul>
+        </div>
+        
 
         <div style={{ padding: "10px" }}>
-        Your Flight Log is Currently <span>
-              <b>{this.state.is_public ? 'PUBLIC' : 'PRIVATE'}</b>
-            </span><br />
+        <div style={titleStyle}>Your Flight Log is Currently <span style={{color:'red'}}>
+              {this.state.is_public ? 'PUBLIC' : 'PRIVATE'}
+            </span></div>
         <button onClick={() => this.changePublic()}>
             Change
           </button>
+          
         </div>
-        
+        <div style={{ padding: "10px" }}>
+        <div style={titleStyle}>List of Public Users</div>
         <ul>
           {public_users.length <= 0
             ? "NO ONE"
             : public_users.map(user => (
-                <li style={{ padding: "10px" }} id={user.username}>
+                <li id={user.username}>
                 {user.username} 
                 <button onClick={(e) => this.viewPublic(e)}>
             View
@@ -570,12 +542,11 @@ class App extends Component {
                 </li>
               ))}
         </ul>
-
-        <ul>
+        {view_public ? (<ul>
         {public_log.length <= 0
           ? "NO ENTRIES YET"
           : public_log.map(dat => (
-              <li style={{ padding: "10px" }}>
+              <li>
                 <span style={{ color: "gray" }}> Date: </span> {dat.date} <br />
                 <span style={{ color: "gray" }}> Airline: </span> {dat.airline} <br />
                 <span style={{ color: "gray" }}> Flight Number: </span> {dat.flight_number} <br />
@@ -585,7 +556,12 @@ class App extends Component {
                 <span style={{ color: "gray" }}> Aircraft Reg: </span> {dat.reg} <br />
               </li>
             ))}
-        </ul>
+        </ul>) : (<div>Select a public user to view their flight log</div>)}
+        <button onClick={() => this.hidePublic()}>
+            Hide
+          </button>
+        </div>
+        
 
 
 

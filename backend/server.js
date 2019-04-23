@@ -134,10 +134,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(logger("dev"));
 
-// this is our get method
-// this method fetches all available data in our database
+
 router.get("/getData", (req, res) => {
-  console.log(req.session.username);
   Flight.find({'username': req.session.username},(err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
@@ -151,8 +149,7 @@ router.get("/getImage", (req, res) => {
   });
 });
 
-// this is our update method
-// this method overwrites existing data in our database
+
 router.post("/updateData", (req, res) => {
   const { id, update } = req.body;
   Flight.findOneAndUpdate(id, update, err => {
@@ -179,7 +176,6 @@ router.post("/submitCurrentAirport", (req, res) => {
 
 router.get("/getAirportUsers", (req, res) => {
   const { airport } = req.query;
-  console.log(airport);
   User.find({"airport": airport},(err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
@@ -217,11 +213,9 @@ router.get("/getPublicLog", (req, res) => {
   });
 });
 
-// this is our delete method
-// this method removes existing data in our database
+
 router.delete("/deleteData", (req, res) => {
   const { id } = req.body;
-  console.log(id);
   Flight.findOneAndDelete({"_id":id}, err => {
     if (err) return res.json({ success: false });
     return res.json({ success: true });
@@ -230,20 +224,16 @@ router.delete("/deleteData", (req, res) => {
 
 router.delete("/deleteImage", (req, res) => {
   const { id } = req.body;
-  console.log(id);
   Image.findOneAndDelete({"_id":id}, err => {
     if (err) return res.json({ success: false });
     return res.json({ success: true });
   });
 });
 
-// this is our create methid
-// this method adds new data in our database
+
 router.post("/putData", (req, res) => {
   let data = new Flight();
-
   const { date,airline,flight_number,from,to,aircraft,reg } = req.body;
-
   if (!date || !airline || !flight_number || !from || !to || ! aircraft || !reg) {
     return res.json({
       success: false,
@@ -293,22 +283,17 @@ router.post("/login", (req, res) => {
   }
   User.authenticate(req.body.username, req.body.password, (err, user) => {
     if (err) return res.json({ success: false, error: err.message });
-    //console.log(req);
     req.session.username = user.username;
-    console.log(req.session.username);
     return res.json({ success: true, user: user });
   });
 });
 
 router.get('/logout', function(req, res) {
   if (req.session) {
-    // delete session object
-    console.log(req.session.username);
     req.session.destroy(function(err) {
       if(err) {
         return res.json({ success: false, error: err });
       } else {
-        //console.log(req.session.username);
         return res.json({ success: true });
       }
     });
