@@ -186,6 +186,29 @@ router.get("/getAirportUsers", (req, res) => {
   });
 });
 
+router.get("/getPublic", (req, res) => {
+  User.find({'username': req.session.username},(err, data) => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true, data: data });
+  });
+});
+
+router.post("/changePublic", (req, res) => {
+  const { update } = req.body;
+  const username = req.session.username;
+  User.findOneAndUpdate({"username":username}, update, err => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true });
+  });
+});
+
+router.get("/getPublicUsers", (req, res) => {
+  User.find({"public": true},(err, data) => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true, data: data });
+  });
+});
+
 // this is our delete method
 // this method removes existing data in our database
 router.delete("/deleteData", (req, res) => {

@@ -31,6 +31,7 @@ class App extends Component {
     user_password: null,
     logged_in: false,
     is_public: false,
+    public_users: [],
     login_warning: "",
     create_user_warning: "",
     add_warning: ""
@@ -75,6 +76,20 @@ class App extends Component {
     }.bind(this))
     .catch(function (error) {
       console.log(error);
+    });
+    axios.get("http://localhost:3001/api/getPublic").then(function (response) {
+      this.setState({ is_public: response.data.data[0].public });
+    }.bind(this))
+    .catch(function (error) {
+      console.log(error);
+    });
+    axios.get("http://localhost:3001/api/getPublicUsers"
+      ).then(function (response) {
+        console.log(response.data.data);
+        this.setState({ public_users: response.data.data })
+      }.bind(this))
+      .catch(function (error) {
+        console.log(error);
     });
     axios.get("http://localhost:3001/api/getCurrentAirport").then(function (response) {
       this.setState({ current_airport: response.data.data[0].airport });
@@ -189,6 +204,20 @@ class App extends Component {
   submitCurrentAirport = () =>{
     axios.post("http://localhost:3001/api/submitCurrentAirport", {
       update: { airport: this.state.input_current_airport }
+    }).then(function (response) {
+      if(response.data.success){
+        this.getDataFromDb();
+      }
+    }.bind(this))
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
+  changePublic = () =>{
+    //this.setState({is_public: !this.state.is_public});
+    axios.post("http://localhost:3001/api/changePublic", {
+      update: { public: !this.state.is_public }
     }).then(function (response) {
       if(response.data.success){
         this.getDataFromDb();
@@ -367,7 +396,7 @@ class App extends Component {
   }
 
   render() {
-    const { data, images, current_airport_users, logged_in } = this.state;
+    const { data, images, current_airport_users, logged_in, public_users } = this.state;
     const imgStyle = {
       display: 'block',
       marginLeft: 'auto',
@@ -497,6 +526,25 @@ class App extends Component {
           {current_airport_users.length <= 0
             ? "NO ENTRIES YET"
             : current_airport_users.map(user => (
+                <li style={{ padding: "10px" }}>
+                  {user.username}
+                </li>
+              ))}
+        </ul>
+
+        <div style={{ padding: "10px" }}>
+        Your Flight Log is Currently <span>
+              <b>{this.state.is_public ? 'PUBLIC' : 'PRIVATE'}</b>
+            </span><br />
+        <button onClick={() => this.changePublic()}>
+            Change
+          </button>
+        </div>
+        
+        <ul>
+          {public_users.length <= 0
+            ? "NO ONE"
+            : public_users.map(user => (
                 <li style={{ padding: "10px" }}>
                   {user.username}
                 </li>
