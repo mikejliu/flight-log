@@ -49,6 +49,14 @@ var userSchema = new Schema(
     password: {
       type: String,
       required: true,
+    },
+    airport: {
+      type:String,
+      required: false,
+    },
+    public:{
+      type: Boolean,
+      required: true,
     }
   },
   {collection: 'users' }
@@ -155,6 +163,31 @@ router.post("/updateData", (req, res) => {
   });
 });
 
+router.get("/getCurrentAirport", (req, res) => {
+  User.find({'username': req.session.username},(err, data) => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true, data: data });
+  });
+});
+
+router.post("/submitCurrentAirport", (req, res) => {
+  const { update } = req.body;
+  const username = req.session.username;
+  User.findOneAndUpdate({"username":username}, update, err => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true });
+  });
+});
+
+router.get("/getAirportUsers", (req, res) => {
+  const { airport } = req.query;
+  console.log(airport);
+  User.find({"airport": airport},(err, data) => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true, data: data });
+  });
+});
+
 // this is our delete method
 // this method removes existing data in our database
 router.delete("/deleteData", (req, res) => {
@@ -216,6 +249,8 @@ router.post("/createUser", (req, res) => {
   }
   data.username = username;
   data.password = password;
+  data.airport = "";
+  data.public = false;
   data.save(err => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });

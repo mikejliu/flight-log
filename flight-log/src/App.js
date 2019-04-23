@@ -24,6 +24,9 @@ class App extends Component {
     sort_aircraft: false,
     sort_reg: false,
     selectedImg: null,
+    current_airport: "",
+    input_current_airport: null,
+    current_airport_users: [],
     user_username: null,
     user_password: null,
     logged_in: false,
@@ -84,6 +87,23 @@ class App extends Component {
     .catch(function (error) {
       console.log(error);
     });
+    axios.get("http://localhost:3001/api/getCurrentAirport").then(function (response) {
+      console.log(response.data.data);
+      this.setState({ current_airport: response.data.data[0].airport });
+      axios.get("http://localhost:3001/api/getAirportUsers", {
+      params:{airport: this.state.current_airport}
+    }).then(function (response) {
+      console.log(response.data.data);
+      this.setState({ current_airport_users: response.data.data })
+    }.bind(this))
+    .catch(function (error) {
+      console.log(error);
+    });
+    }.bind(this))
+    .catch(function (error) {
+      console.log(error);
+    });
+    
   };
 
   // https://medium.com/@colinrlly/send-store-and-show-images-with-react-express-and-mongodb-592bc38a9ed
@@ -181,7 +201,21 @@ class App extends Component {
     });
   };
 
+  submitCurrentAirport = () =>{
+    axios.post("http://localhost:3001/api/submitCurrentAirport", {
+      
+      update: { airport: this.state.input_current_airport }
 
+    }).then(function (response) {
+      if(response.data.success){
+        this.getDataFromDb();
+      }
+    }.bind(this))
+    .catch(function (error) {
+      console.log(error);
+    });
+    
+  }
   // our update method that uses our backend api
   // to overwrite existing data base information
   // updateDB = (idToUpdate, updateToApply) => {
@@ -357,7 +391,7 @@ class App extends Component {
   // it is easy to understand their functions when you 
   // see them render into our screen
   render() {
-    const { data, images, logged_in } = this.state;
+    const { data, images, current_airport_users, logged_in } = this.state;
     const imgStyle = {
       display: 'block',
       marginLeft: 'auto',
@@ -467,7 +501,32 @@ class App extends Component {
               </div>
               ))}
         </div>
+        <div style={{ padding: "10px" }}>
+        Your Current Airport <span>
+              {this.state.current_airport}
+            </span><br />
+
+        <input
+            type="text"
+            onChange={e => this.setState({ input_current_airport: e.target.value })}
+            placeholder="Update Current Airport"
+            style={{ width: "200px" }}
+          />
+          <button onClick={() => this.submitCurrentAirport()}>
+            Submit
+          </button>
+        </div>
         
+        <ul>
+          {current_airport_users.length <= 0
+            ? "NO ENTRIES YET"
+            : current_airport_users.map(user => (
+                <li style={{ padding: "10px" }}>
+                  {user.username}
+                </li>
+              ))}
+        </ul>
+
         <div style={{ padding: "10px" }}>
         <button
               onClick={() =>
