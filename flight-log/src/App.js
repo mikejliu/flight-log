@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { runInThisContext } from "vm";
 axios.defaults.withCredentials = true;
 
 class App extends Component {
@@ -8,6 +7,7 @@ class App extends Component {
   
   state = {
     data: [],
+    images: [],
     id: 0,
     message: null,
     intervalIsSet: false,
@@ -66,10 +66,11 @@ class App extends Component {
       console.log(error);
     });
     axios.get("http://localhost:3001/api/getImage").then(function (response) {
-      console.log(response.data.data[0]);
-      let base64Flag = 'data:image/png;base64,';
-      let imageStr = this.arrayBufferToBase64(response.data.data[0].img.data.data);
-      this.setState({ img: base64Flag + imageStr })
+      console.log(response.data.data);
+      this.setState({ images: response.data.data });
+      // let base64Flag = 'data:image/png;base64,';
+      // let imageStr = this.arrayBufferToBase64(response.data.data[0].img.data.data);
+      // this.setState({ img: base64Flag + imageStr })
     }.bind(this))
     .catch(function (error) {
       console.log(error);
@@ -112,7 +113,15 @@ class App extends Component {
     var formData = new FormData();
   
     formData.append("avatar", this.state.selectedImg);
-    axios.post("http://localhost:3001/api/photo", formData);
+    axios.post("http://localhost:3001/api/photo", formData).then(function (response) {
+      console.log(response.data);
+      if(response.data.success){
+        this.getDataFromDb();
+      }
+    }.bind(this))
+    .catch(function (error) {
+      console.log(error);
+    });
   }
   
   changeSelectedImage = e => {
@@ -219,7 +228,7 @@ class App extends Component {
   // it is easy to understand their functions when you 
   // see them render into our screen
   render() {
-    const { data, logged_in } = this.state;
+    const { data, images, logged_in } = this.state;
     if(logged_in){
       return(
         <div>
@@ -283,10 +292,16 @@ class App extends Component {
         <input type="submit" value="upload"/>
         </form>
         </div>
-
-        <img
-            src={this.state.img}
-            alt='Helpful alt text'/>
+        <div>
+        {images.length <= 0
+            ? "NO IMAGES YET"
+            : images.map(img => (
+                <img
+                src={'data:'+img.img.contentType+';base64,'+this.arrayBufferToBase64(img.img.data.data)}
+                alt='Helpful alt text'/>
+              ))}
+        </div>
+        
         <div>
         <button
               onClick={() =>

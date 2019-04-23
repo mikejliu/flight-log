@@ -27,7 +27,8 @@ const imageSchema = new Schema(
     img:{
       data: Buffer,
       contentType: String
-    }
+    },
+    username: String
   },
   {collection: 'images' }
 );
@@ -133,7 +134,7 @@ router.get("/getData", (req, res) => {
 });
 
 router.get("/getImage", (req, res) => {
-  Image.find((err, data) => {
+  Image.find({'username': req.session.username},(err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
@@ -235,10 +236,14 @@ router.get('/logout', function(req, res) {
 
 router.post('/photo',function(req,res){
   var newItem = new Image();
-  newItem.img.data = fs.readFileSync(req.file.path)
-  console.log(newItem.img.data);
-  newItem.img.contentType = 'image/png';
-  newItem.save();
+  newItem.username = req.session.username;
+  let file = req.file;
+  newItem.img.data = fs.readFileSync(file.path);
+  newItem.img.contentType = file.mimetype;
+  newItem.save((err, data) => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true, data: data });
+  });
  });
 
 // append /api for our http requests
