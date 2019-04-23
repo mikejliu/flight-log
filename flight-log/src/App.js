@@ -6,7 +6,6 @@ axios.defaults.withCredentials = true;
 
 class App extends Component {
   // initialize our state 
-  
   state = {
     data: [],
     images: [],
@@ -17,6 +16,13 @@ class App extends Component {
     input_to: null,
     input_aircraft: null,
     input_reg: null,
+    sort_date: false,
+    sort_airline: false,
+    sort_flight_number: false,
+    sort_from: false,
+    sort_to: false,
+    sort_aircraft: false,
+    sort_reg: false,
     selectedImg: null,
     user_username: null,
     user_password: null,
@@ -157,6 +163,24 @@ class App extends Component {
     });
   };
 
+  deleteImageFromDB = e => {
+    let idToDelete = e.target.parentNode.parentNode.id;
+    console.log(idToDelete);
+
+    axios.delete("http://localhost:3001/api/deleteImage", {
+      data: {
+        id: idToDelete
+      }
+    }).then(function (response) {
+      if(response.data.success){
+        this.getDataFromDb();
+      }
+    }.bind(this))
+    .catch(function (error) {
+      console.log(error);
+    });
+  };
+
 
   // our update method that uses our backend api
   // to overwrite existing data base information
@@ -242,11 +266,104 @@ class App extends Component {
     });
   }
 
+  sortDate = () =>{
+    this.setState({sort_date:!this.state.sort_date});
+    const sort_date = this.state.sort_date;
+    console.log(sort_date);
+    this.setState({
+      data:this.state.data.sort(function (a, b) {
+        let dateA = new Date(a.date);
+        let dateB = new Date(b.date);
+        if(dateA < dateB) {
+          if(sort_date) return -1;
+          return 1;
+        }
+        if(dateA > dateB) {
+          if(sort_date) return 1;
+          return -1;
+        }
+        return 0;
+      })
+    })
+  }
+
+  sortAirline = () =>{
+    this.setState({sort_airline:!this.state.sort_airline});
+    const sort_airline = this.state.sort_airline;
+    this.setState({
+      data:this.state.data.sort(function (a, b) {
+        if(sort_airline) return a.airline.localeCompare(b.airline);
+        return b.airline.localeCompare(a.airline);
+      })
+    })
+  }
+
+  sortFlightNumber = () =>{
+    this.setState({sort_flight_number:!this.state.sort_flight_number});
+    const sort_flight_number = this.state.sort_flight_number;
+    this.setState({
+      data:this.state.data.sort(function (a, b) {
+        if(sort_flight_number) return a.flight_number.localeCompare(b.flight_number);
+        return b.flight_number.localeCompare(a.flight_number);
+      })
+    })
+  }
+
+  sortFrom = () =>{
+    this.setState({sort_from:!this.state.sort_from});
+    const sort_from = this.state.sort_from;
+    this.setState({
+      data:this.state.data.sort(function (a, b) {
+        if(sort_from) return a.from.localeCompare(b.from);
+        return b.from.localeCompare(a.from);
+      })
+    })
+  }
+
+  sortTo = () =>{
+    this.setState({sort_to:!this.state.sort_to});
+    const sort_to = this.state.sort_to;
+    this.setState({
+      data:this.state.data.sort(function (a, b) {
+        if(sort_to) return a.to.localeCompare(b.to);
+        return b.to.localeCompare(a.to);
+      })
+    })
+  }
+
+  sortAircraft = () =>{
+    this.setState({sort_aircraft:!this.state.sort_aircraft});
+    const sort_aircraft = this.state.sort_aircraft;
+    this.setState({
+      data:this.state.data.sort(function (a, b) {
+        if(sort_aircraft) return a.aircraft.localeCompare(b.aircraft);
+        return b.aircraft.localeCompare(a.aircraft);
+      })
+    })
+  }
+
+  sortReg = () =>{
+    this.setState({sort_reg:!this.state.sort_reg});
+    const sort_reg = this.state.sort_reg;
+    this.setState({
+      data:this.state.data.sort(function (a, b) {
+        if(sort_reg) return a.reg.localeCompare(b.reg);
+        return b.reg.localeCompare(a.reg);
+      })
+    })
+  }
+
   // here is our UI
   // it is easy to understand their functions when you 
   // see them render into our screen
   render() {
     const { data, images, logged_in } = this.state;
+    const imgStyle = {
+      display: 'block',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      width: '50%'
+    };
     if(logged_in){
       return(
         <div>
@@ -298,10 +415,26 @@ class App extends Component {
               {this.state.add_warning}
             </span>
         </div>
+        <div>
+        <form onSubmit={e => this.uploadImage(e)}>
+        <input type="file" name="avatar" id="imageToUpload" onChange={e => this.changeSelectedImage(e)}/>
+        <input type="submit" value="upload"/>
+        </form>
+        </div>
+        <div>
+          Sort by
+          <button onClick={() => this.sortDate()}>Date</button>
+          <button onClick={() => this.sortAirline()}>Airline</button>
+          <button onClick={() => this.sortFlightNumber()}>Flight Number</button>
+          <button onClick={() => this.sortFrom()}>From</button>
+          <button onClick={() => this.sortTo()}>To</button>
+          <button onClick={() => this.sortAircraft()}>Aircraft Type</button>
+          <button onClick={() => this.sortReg()}>Aircraft Reg</button>
+        </div>
 
           <ul>
           {data.length <= 0
-            ? "NO DB ENTRIES YET"
+            ? "NO ENTRIES YET"
             : data.map(dat => (
                 <li style={{ padding: "10px" }} key={dat._id} id={dat._id}>
                   <span style={{ color: "gray" }}> Date: </span> {dat.date} <br />
@@ -316,19 +449,20 @@ class App extends Component {
               ))}
         </ul>
 
-        <div>
-        <form onSubmit={e => this.uploadImage(e)}>
-        <input type="file" name="avatar" id="imageToUpload" onChange={e => this.changeSelectedImage(e)}/>
-        <input type="submit" value="upload"/>
-        </form>
-        </div>
+        
         <div>
         {images.length <= 0
             ? "NO IMAGES YET"
             : images.map(img => (
+              <div key={img._id} id={img._id}>
                 <img
                 src={'data:'+img.img.contentType+';base64,'+this.arrayBufferToBase64(img.img.data.data)}
-                alt='Helpful alt text'/>
+                alt='Helpful alt text'
+                style={imgStyle}/>
+                <div style={{textAlign : "center"}}>
+                <button style={{marginLeft: "auto", marginRight: "auto"}} onClick={e => this.deleteImageFromDB(e)}>Delete</button>
+                </div>
+              </div>
               ))}
         </div>
         

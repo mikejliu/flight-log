@@ -166,6 +166,15 @@ router.delete("/deleteData", (req, res) => {
   });
 });
 
+router.delete("/deleteImage", (req, res) => {
+  const { id } = req.body;
+  console.log(id);
+  Image.findOneAndDelete({"_id":id}, err => {
+    if (err) return res.json({ success: false });
+    return res.json({ success: true });
+  });
+});
+
 // this is our create methid
 // this method adds new data in our database
 router.post("/putData", (req, res) => {
