@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 axios.defaults.withCredentials = true;
 
 class App extends Component {
@@ -8,19 +10,20 @@ class App extends Component {
   state = {
     data: [],
     images: [],
-    id: 0,
-    message: null,
-    intervalIsSet: false,
-    idToDelete: null,
-    idToUpdate: null,
-    objectToUpdate: null,
+    input_date: new Date(),
+    input_airline: null,
+    input_flight_number: null,
+    input_from: null,
+    input_to: null,
+    input_aircraft: null,
+    input_reg: null,
+    selectedImg: null,
     user_username: null,
     user_password: null,
     logged_in: false,
     login_warning: "",
     create_user_warning: "",
-    img: "",
-    selectedImg: ""
+    add_warning: ""
   };
   
 
@@ -59,7 +62,7 @@ class App extends Component {
     //   .then(data => data.json())
     //   .then(res => this.setState({ data: res.data }));
     axios.get("http://localhost:3001/api/getData").then(function (response) {
-      console.log(response.data.data);
+      //console.log(response.data.data[0]);
       this.setState({ data: response.data.data })
     }.bind(this))
     .catch(function (error) {
@@ -86,20 +89,26 @@ class App extends Component {
 };
   // our put method that uses our backend api
   // to create new query into our data base
-  putDataToDB = message => {
-    let currentIds = this.state.data.map(data => data.id);
-    let idToBeAdded = 0;
-    while (currentIds.includes(idToBeAdded)) {
-      ++idToBeAdded;
-    }
+  putDataToDB = () => {
+    console.log(this.state.input_date);
 
     axios.post("http://localhost:3001/api/putData", {
-      id: idToBeAdded,
-      message: message
+      
+      date: this.state.input_date.toDateString(),
+      airline: this.state.input_airline,
+      flight_number: this.state.input_flight_number,
+      from: this.state.input_from,
+      to: this.state.input_to,
+      aircraft: this.state.input_aircraft,
+      reg: this.state.input_reg
+
     }).then(function (response) {
       console.log(response.data);
-      if(response.data.success){
+      if(!response.data.success){
+        this.setState({add_warning:response.data.error});
+      }else{
         this.getDataFromDb();
+        this.setState({add_warning:""});
       }
     }.bind(this))
     .catch(function (error) {
@@ -130,37 +139,40 @@ class App extends Component {
 
   // our delete method that uses our backend api 
   // to remove existing database information
-  deleteFromDB = idTodelete => {
-    let objIdToDelete = null;
-    this.state.data.forEach(dat => {
-      if (dat.id === idTodelete) {
-        objIdToDelete = dat._id;
-      }
-    });
+  deleteFromDB = e => {
+    let idToDelete = e.target.parentNode.id;
+    console.log(idToDelete);
 
     axios.delete("http://localhost:3001/api/deleteData", {
       data: {
-        id: objIdToDelete
+        id: idToDelete
       }
+    }).then(function (response) {
+      if(response.data.success){
+        this.getDataFromDb();
+      }
+    }.bind(this))
+    .catch(function (error) {
+      console.log(error);
     });
   };
 
 
   // our update method that uses our backend api
   // to overwrite existing data base information
-  updateDB = (idToUpdate, updateToApply) => {
-    let objIdToUpdate = null;
-    this.state.data.forEach(dat => {
-      if (dat.id === idToUpdate) {
-        objIdToUpdate = dat._id;
-      }
-    });
+  // updateDB = (idToUpdate, updateToApply) => {
+  //   let objIdToUpdate = null;
+  //   this.state.data.forEach(dat => {
+  //     if (dat.id === idToUpdate) {
+  //       objIdToUpdate = dat._id;
+  //     }
+  //   });
 
-    axios.post("http://localhost:3001/api/updateData", {
-      id: objIdToUpdate,
-      update: { message: updateToApply }
-    });
-  };
+  //   axios.post("http://localhost:3001/api/updateData", {
+  //     id: objIdToUpdate,
+  //     update: { message: updateToApply }
+  //   });
+  // };
 
   createUser = (username, password) => {
     
@@ -224,6 +236,12 @@ class App extends Component {
   
   };
 
+  changeDate = date => {
+    this.setState({
+      input_date: date
+    });
+  }
+
   // here is our UI
   // it is easy to understand their functions when you 
   // see them render into our screen
@@ -232,60 +250,72 @@ class App extends Component {
     if(logged_in){
       return(
         <div>
+          <div style={{ padding: "10px" }}>
+          <DatePicker
+            selected={this.state.input_date}
+            onChange={this.changeDate}
+          />
+          <input
+            type="text"
+            onChange={e => this.setState({ input_airline: e.target.value })}
+            placeholder="Airline"
+            style={{ width: "200px" }}
+          />
+          <input
+            type="text"
+            onChange={e => this.setState({ input_flight_number: e.target.value })}
+            placeholder="Flight Number"
+            style={{ width: "200px" }}
+          />
+          <input
+            type="text"
+            onChange={e => this.setState({ input_from: e.target.value })}
+            placeholder="From"
+            style={{ width: "200px" }}
+          />
+          <input
+            type="text"
+            onChange={e => this.setState({ input_to: e.target.value })}
+            placeholder="To"
+            style={{ width: "200px" }}
+          />
+          <input
+            type="text"
+            onChange={e => this.setState({ input_aircraft: e.target.value })}
+            placeholder="Aircraft Type"
+            style={{ width: "200px" }}
+          />
+          <input
+            type="text"
+            onChange={e => this.setState({ input_reg: e.target.value })}
+            placeholder="Aircraft Reg"
+            style={{ width: "200px" }}
+          />
+          <button onClick={() => this.putDataToDB()}>
+            ADD
+          </button>
+          <span>
+              {this.state.add_warning}
+            </span>
+        </div>
+
           <ul>
           {data.length <= 0
             ? "NO DB ENTRIES YET"
             : data.map(dat => (
-                <li style={{ padding: "10px" }} key={data.message}>
-                  <span style={{ color: "gray" }}> id: </span> {dat.id} <br />
-                  <span style={{ color: "gray" }}> data: </span>
-                  {dat.message}
+                <li style={{ padding: "10px" }} key={dat._id} id={dat._id}>
+                  <span style={{ color: "gray" }}> Date: </span> {dat.date} <br />
+                  <span style={{ color: "gray" }}> Airline: </span> {dat.airline} <br />
+                  <span style={{ color: "gray" }}> Flight Number: </span> {dat.flight_number} <br />
+                  <span style={{ color: "gray" }}> From: </span> {dat.from} <br />
+                  <span style={{ color: "gray" }}> To: </span> {dat.to} <br />
+                  <span style={{ color: "gray" }}> Aircraft Type: </span> {dat.aircraft} <br />
+                  <span style={{ color: "gray" }}> Aircraft Reg: </span> {dat.reg} <br />
+                  <button onClick={e => this.deleteFromDB(e)}>Delete</button>
                 </li>
               ))}
         </ul>
-        <div style={{ padding: "10px" }}>
-          <input
-            type="text"
-            onChange={e => this.setState({ message: e.target.value })}
-            placeholder="add something in the database"
-            style={{ width: "200px" }}
-          />
-          <button onClick={() => this.putDataToDB(this.state.message)}>
-            ADD
-          </button>
-        </div>
-        <div style={{ padding: "10px" }}>
-          <input
-            type="text"
-            style={{ width: "200px" }}
-            onChange={e => this.setState({ idToDelete: e.target.value })}
-            placeholder="put id of item to delete here"
-          />
-          <button onClick={() => this.deleteFromDB(this.state.idToDelete)}>
-            DELETE
-          </button>
-        </div>
-        <div style={{ padding: "10px" }}>
-          <input
-            type="text"
-            style={{ width: "200px" }}
-            onChange={e => this.setState({ idToUpdate: e.target.value })}
-            placeholder="id of item to update here"
-          />
-          <input
-            type="text"
-            style={{ width: "200px" }}
-            onChange={e => this.setState({ updateToApply: e.target.value })}
-            placeholder="put new value of the item here"
-          />
-          <button
-            onClick={() =>
-              this.updateDB(this.state.idToUpdate, this.state.updateToApply)
-            }
-          >
-            UPDATE
-          </button>
-        </div>
+
         <div>
         <form onSubmit={e => this.uploadImage(e)}>
         <input type="file" name="avatar" id="imageToUpload" onChange={e => this.changeSelectedImage(e)}/>

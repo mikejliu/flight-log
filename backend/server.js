@@ -13,8 +13,13 @@ const multer = require("multer");
 
 const flightSchema = new Schema(
   {
-    id: Number,
-    message: String,
+    date: String,
+    airline: String,
+    flight_number: String,
+    from: String,
+    to: String,
+    aircraft: String,
+    reg: String,
     username: String
   },
   {
@@ -154,8 +159,9 @@ router.post("/updateData", (req, res) => {
 // this method removes existing data in our database
 router.delete("/deleteData", (req, res) => {
   const { id } = req.body;
-  Flight.findOneAndDelete(id, err => {
-    if (err) return res.send(err);
+  console.log(id);
+  Flight.findOneAndDelete({"_id":id}, err => {
+    if (err) return res.json({ success: false });
     return res.json({ success: true });
   });
 });
@@ -165,17 +171,21 @@ router.delete("/deleteData", (req, res) => {
 router.post("/putData", (req, res) => {
   let data = new Flight();
 
-  const { id, message } = req.body;
+  const { date,airline,flight_number,from,to,aircraft,reg } = req.body;
 
-  if ((!id && id !== 0) || !message) {
+  if (!date || !airline || !flight_number || !from || !to || ! aircraft || !reg) {
     return res.json({
       success: false,
       error: "INVALID INPUTS"
     });
   }
-  data.message = message;
-  data.id = id;
-  console.log(req.session.username);
+  data.date = date;
+  data.airline = airline;
+  data.flight_number = flight_number;
+  data.from = from;
+  data.to = to;
+  data.aircraft = aircraft;
+  data.reg = reg;
   data.username = req.session.username;
   data.save((err, data) => {
     if (err) return res.json({ success: false, error: err });
