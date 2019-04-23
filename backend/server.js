@@ -10,7 +10,6 @@ const MongoStore = require('connect-mongo')(session);
 const fs = require("fs");
 const multer = require("multer");
 
-
 const flightSchema = new Schema(
   {
     date: String,
@@ -22,11 +21,10 @@ const flightSchema = new Schema(
     reg: String,
     username: String
   },
-  {
-    collection: 'flights' }
-  
+  {collection: 'flights' }
 );
 const Flight = mongoose.model('Flight', flightSchema);
+
 const imageSchema = new Schema(
   {
     img:{
@@ -38,7 +36,8 @@ const imageSchema = new Schema(
   {collection: 'images' }
 );
 const Image = mongoose.model('Image',imageSchema);
-var userSchema = new Schema(
+
+const userSchema = new Schema(
   {
     username: {
       type: String,
@@ -61,6 +60,7 @@ var userSchema = new Schema(
   },
   {collection: 'users' }
 );
+
 userSchema.pre('save', function (next) {
   var user = this;
   bcrypt.hash(user.password, 10, function (err, hash){
@@ -71,6 +71,7 @@ userSchema.pre('save', function (next) {
     next();
   })
 });
+
 userSchema.statics.authenticate = function (username, password, callback) {
   User.findOne({ username: username })
     .exec(function (err, user) {
@@ -94,13 +95,10 @@ userSchema.statics.authenticate = function (username, password, callback) {
 }
 const User = mongoose.model('User', userSchema);
 
-
-
 const API_PORT = 3001;
 const router = express.Router();
 const app = express();
 app.use(cors({credentials: true, origin: true}));
-
 
 // this is our MongoDB database
 const dbRoute = "mongodb+srv://guest:guest_passwd@cluster0-tw5wq.mongodb.net/flight-log?retryWrites=true";
@@ -238,9 +236,7 @@ router.post("/putData", (req, res) => {
 
 router.post("/createUser", (req, res) => {
   let data = new User();
-
   const { username, password } = req.body;
-
   if (!username || !password) {
     return res.json({
       success: false,
@@ -249,7 +245,7 @@ router.post("/createUser", (req, res) => {
   }
   data.username = username;
   data.password = password;
-  data.airport = "";
+  data.airport = null;
   data.public = false;
   data.save(err => {
     if (err) return res.json({ success: false, error: err });

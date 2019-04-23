@@ -30,15 +30,12 @@ class App extends Component {
     user_username: null,
     user_password: null,
     logged_in: false,
+    is_public: false,
     login_warning: "",
     create_user_warning: "",
     add_warning: ""
   };
   
-
-  // when component mounts, first thing it does is fetch all existing data in our db
-  // then we incorporate a polling logic so that we can easily see if our db has 
-  // changed and implement those changes into our UI
   componentDidMount() {
     //this.getDataFromDb();
     // if (!this.state.intervalIsSet) {
@@ -59,13 +56,6 @@ class App extends Component {
     // }
   }
 
-  // just a note, here, in the front end, we use the id key of our data object 
-  // in order to identify which we want to Update or delete.
-  // for our back end, we use the object id assigned by MongoDB to modify 
-  // data base entries
-
-  // our first get method that uses our backend api to 
-  // fetch data from our data base
   getDataFromDb = () => {
     // axios.get("http://localhost:3001/api/getData")
     //   .then(data => data.json())
@@ -78,7 +68,6 @@ class App extends Component {
       console.log(error);
     });
     axios.get("http://localhost:3001/api/getImage").then(function (response) {
-      console.log(response.data.data);
       this.setState({ images: response.data.data });
       // let base64Flag = 'data:image/png;base64,';
       // let imageStr = this.arrayBufferToBase64(response.data.data[0].img.data.data);
@@ -88,17 +77,21 @@ class App extends Component {
       console.log(error);
     });
     axios.get("http://localhost:3001/api/getCurrentAirport").then(function (response) {
-      console.log(response.data.data);
       this.setState({ current_airport: response.data.data[0].airport });
       axios.get("http://localhost:3001/api/getAirportUsers", {
-      params:{airport: this.state.current_airport}
-    }).then(function (response) {
-      console.log(response.data.data);
-      this.setState({ current_airport_users: response.data.data })
-    }.bind(this))
-    .catch(function (error) {
-      console.log(error);
-    });
+        params:{airport: this.state.current_airport}
+      }).then(function (response) {
+        console.log(this.state.current_airport);
+        if(this.state.current_airport === null || this.state.current_airport === "") {
+          this.setState({ current_airport_users: [] })
+        }
+        else {
+          this.setState({ current_airport_users: response.data.data })
+        }
+      }.bind(this))
+      .catch(function (error) {
+        console.log(error);
+      });
     }.bind(this))
     .catch(function (error) {
       console.log(error);
@@ -112,9 +105,8 @@ class App extends Component {
     var bytes = [].slice.call(new Uint8Array(buffer));
     bytes.forEach((b) => binary += String.fromCharCode(b));
     return window.btoa(binary);
-};
-  // our put method that uses our backend api
-  // to create new query into our data base
+  };
+
   putDataToDB = () => {
     console.log(this.state.input_date);
 
@@ -144,7 +136,6 @@ class App extends Component {
 
   uploadImage = e =>{
     e.preventDefault();
-    console.log("inside uploadImage");
     var formData = new FormData();
   
     formData.append("avatar", this.state.selectedImg);
@@ -163,12 +154,8 @@ class App extends Component {
     this.setState({selectedImg: e.target.files[0]});
   }
 
-  // our delete method that uses our backend api 
-  // to remove existing database information
   deleteFromDB = e => {
     let idToDelete = e.target.parentNode.id;
-    console.log(idToDelete);
-
     axios.delete("http://localhost:3001/api/deleteData", {
       data: {
         id: idToDelete
@@ -185,8 +172,6 @@ class App extends Component {
 
   deleteImageFromDB = e => {
     let idToDelete = e.target.parentNode.parentNode.id;
-    console.log(idToDelete);
-
     axios.delete("http://localhost:3001/api/deleteImage", {
       data: {
         id: idToDelete
@@ -203,9 +188,7 @@ class App extends Component {
 
   submitCurrentAirport = () =>{
     axios.post("http://localhost:3001/api/submitCurrentAirport", {
-      
       update: { airport: this.state.input_current_airport }
-
     }).then(function (response) {
       if(response.data.success){
         this.getDataFromDb();
@@ -214,8 +197,8 @@ class App extends Component {
     .catch(function (error) {
       console.log(error);
     });
-    
   }
+
   // our update method that uses our backend api
   // to overwrite existing data base information
   // updateDB = (idToUpdate, updateToApply) => {
@@ -233,8 +216,6 @@ class App extends Component {
   // };
 
   createUser = (username, password) => {
-    
-
     axios.post("http://localhost:3001/api/createUser", {
       username: username,
       password: password
@@ -277,8 +258,6 @@ class App extends Component {
   };
 
   logout = () => {
-    
-
     axios.get("http://localhost:3001/api/logout").then(function (response) {
       console.log(response.data);
       if(!response.data.success){
@@ -387,9 +366,6 @@ class App extends Component {
     })
   }
 
-  // here is our UI
-  // it is easy to understand their functions when you 
-  // see them render into our screen
   render() {
     const { data, images, current_airport_users, logged_in } = this.state;
     const imgStyle = {
@@ -468,21 +444,21 @@ class App extends Component {
           <button onClick={() => this.sortReg()}>Aircraft Reg</button>
         </div>
 
-          <ul>
-          {data.length <= 0
-            ? "NO ENTRIES YET"
-            : data.map(dat => (
-                <li style={{ padding: "10px" }} key={dat._id} id={dat._id}>
-                  <span style={{ color: "gray" }}> Date: </span> {dat.date} <br />
-                  <span style={{ color: "gray" }}> Airline: </span> {dat.airline} <br />
-                  <span style={{ color: "gray" }}> Flight Number: </span> {dat.flight_number} <br />
-                  <span style={{ color: "gray" }}> From: </span> {dat.from} <br />
-                  <span style={{ color: "gray" }}> To: </span> {dat.to} <br />
-                  <span style={{ color: "gray" }}> Aircraft Type: </span> {dat.aircraft} <br />
-                  <span style={{ color: "gray" }}> Aircraft Reg: </span> {dat.reg} <br />
-                  <button onClick={e => this.deleteFromDB(e)}>Delete</button>
-                </li>
-              ))}
+        <ul>
+        {data.length <= 0
+          ? "NO ENTRIES YET"
+          : data.map(dat => (
+              <li style={{ padding: "10px" }} key={dat._id} id={dat._id}>
+                <span style={{ color: "gray" }}> Date: </span> {dat.date} <br />
+                <span style={{ color: "gray" }}> Airline: </span> {dat.airline} <br />
+                <span style={{ color: "gray" }}> Flight Number: </span> {dat.flight_number} <br />
+                <span style={{ color: "gray" }}> From: </span> {dat.from} <br />
+                <span style={{ color: "gray" }}> To: </span> {dat.to} <br />
+                <span style={{ color: "gray" }}> Aircraft Type: </span> {dat.aircraft} <br />
+                <span style={{ color: "gray" }}> Aircraft Reg: </span> {dat.reg} <br />
+                <button onClick={e => this.deleteFromDB(e)}>Delete</button>
+              </li>
+            ))}
         </ul>
 
         
@@ -542,10 +518,6 @@ class App extends Component {
     }else{
       return (
         <div>
-          
-          
-  
-          
           <div style={{ padding: "10px" }}>
             <input
               type="text"
@@ -554,7 +526,7 @@ class App extends Component {
               placeholder="Username"
             />
             <input
-              type="text"
+              type="password"
               style={{ width: "200px" }}
               onChange={e => this.setState({ user_password: e.target.value })}
               placeholder="Password"
@@ -566,9 +538,9 @@ class App extends Component {
             >
               Create User
             </button>
-            <span>
+            <div>
               {this.state.create_user_warning}
-            </span>
+            </div>
           </div>
   
           <div style={{ padding: "10px" }}>
@@ -579,7 +551,7 @@ class App extends Component {
               placeholder="Username"
             />
             <input
-              type="text"
+              type="password"
               style={{ width: "200px" }}
               onChange={e => this.setState({ user_password: e.target.value })}
               placeholder="Password"
@@ -594,9 +566,7 @@ class App extends Component {
             <span>
               {this.state.login_warning}
             </span>
-          </div>
-  
-  
+          </div>  
         </div>
       );
     }
