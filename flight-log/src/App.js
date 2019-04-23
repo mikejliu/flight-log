@@ -32,6 +32,7 @@ class App extends Component {
     logged_in: false,
     is_public: false,
     public_users: [],
+    public_log: [],
     login_warning: "",
     create_user_warning: "",
     add_warning: ""
@@ -228,6 +229,21 @@ class App extends Component {
     });
   }
 
+  viewPublic = e =>{
+    let publicUsername = e.target.parentNode.id;
+    axios.get("http://localhost:3001/api/getPublicLog", {
+        params:{username: publicUsername}
+      }).then(function (response) {
+      
+        
+        this.setState({ public_log: response.data.data })
+        
+      }.bind(this))
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+  
   // our update method that uses our backend api
   // to overwrite existing data base information
   // updateDB = (idToUpdate, updateToApply) => {
@@ -292,6 +308,7 @@ class App extends Component {
       if(!response.data.success){
         console.log(response.data.error);
       }else{
+        this.setState({public_log:[]});
         this.setState({logged_in:false});
         this.setState({data:[]});
       }
@@ -396,7 +413,7 @@ class App extends Component {
   }
 
   render() {
-    const { data, images, current_airport_users, logged_in, public_users } = this.state;
+    const { data, images, current_airport_users, logged_in, public_users, public_log } = this.state;
     const imgStyle = {
       display: 'block',
       marginLeft: 'auto',
@@ -521,10 +538,10 @@ class App extends Component {
             Submit
           </button>
         </div>
-        
+        {(current_airport_users.length > 0) ? (<div>Current users at {this.state.current_airport}</div>) : (<div>Please update your current airport to see list of users near you</div>)}
         <ul>
           {current_airport_users.length <= 0
-            ? "NO ENTRIES YET"
+            ? ""
             : current_airport_users.map(user => (
                 <li style={{ padding: "10px" }}>
                   {user.username}
@@ -545,11 +562,32 @@ class App extends Component {
           {public_users.length <= 0
             ? "NO ONE"
             : public_users.map(user => (
-                <li style={{ padding: "10px" }}>
-                  {user.username}
+                <li style={{ padding: "10px" }} id={user.username}>
+                {user.username} 
+                <button onClick={(e) => this.viewPublic(e)}>
+            View
+          </button>
                 </li>
               ))}
         </ul>
+
+        <ul>
+        {public_log.length <= 0
+          ? "NO ENTRIES YET"
+          : public_log.map(dat => (
+              <li style={{ padding: "10px" }}>
+                <span style={{ color: "gray" }}> Date: </span> {dat.date} <br />
+                <span style={{ color: "gray" }}> Airline: </span> {dat.airline} <br />
+                <span style={{ color: "gray" }}> Flight Number: </span> {dat.flight_number} <br />
+                <span style={{ color: "gray" }}> From: </span> {dat.from} <br />
+                <span style={{ color: "gray" }}> To: </span> {dat.to} <br />
+                <span style={{ color: "gray" }}> Aircraft Type: </span> {dat.aircraft} <br />
+                <span style={{ color: "gray" }}> Aircraft Reg: </span> {dat.reg} <br />
+              </li>
+            ))}
+        </ul>
+
+
 
         <div style={{ padding: "10px" }}>
         <button

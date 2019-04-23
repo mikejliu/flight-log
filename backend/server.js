@@ -209,6 +209,14 @@ router.get("/getPublicUsers", (req, res) => {
   });
 });
 
+router.get("/getPublicLog", (req, res) => {
+  const { username } = req.query;
+  Flight.find({'username': username},(err, data) => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true, data: data });
+  });
+});
+
 // this is our delete method
 // this method removes existing data in our database
 router.delete("/deleteData", (req, res) => {
