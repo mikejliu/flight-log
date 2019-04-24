@@ -1,3 +1,5 @@
+// overall structure adapted from https://medium.com/javascript-in-plain-english/full-stack-mongodb-react-node-js-express-js-in-one-simple-app-6cc8ed6de274
+
 const mongoose = require("mongoose");
 const express = require("express");
 var cors = require('cors');
@@ -300,6 +302,7 @@ router.get('/logout', function(req, res) {
   }
 });
 
+// https://medium.com/@colinrlly/send-store-and-show-images-with-react-express-and-mongodb-592bc38a9ed
 router.post('/photo',function(req,res){
   var newItem = new Image();
   newItem.username = req.session.username;

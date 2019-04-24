@@ -1,3 +1,5 @@
+// overall structure adapted from https://medium.com/javascript-in-plain-english/full-stack-mongodb-react-node-js-express-js-in-one-simple-app-6cc8ed6de274
+
 import React, { Component } from "react";
 import axios from "axios";
 import DatePicker from "react-datepicker";
@@ -128,6 +130,7 @@ class App extends Component {
     });
   };
 
+  // https://blog.stvmlbrn.com/2017/12/17/upload-files-using-react-to-node-express-server.html
   uploadImage = e =>{
     e.preventDefault();
     var formData = new FormData();
