@@ -1,23 +1,23 @@
 var express = require('express');
 var router = express.Router();
-var fs = require("fs");
+var fs = require('fs');
 var { Flight, Image, User } = require('./../models/models');
 
-router.get("/getData", (req, res) => {
+router.get('/getData', (req, res) => {
   Flight.find({ 'username': req.session.username }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
 });
 
-router.get("/getImage", (req, res) => {
+router.get('/getImage', (req, res) => {
   Image.find({ 'username': req.session.username }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
 });
 
-router.post("/updateData", (req, res) => {
+router.post('/updateData', (req, res) => {
   var { id, update } = req.body;
   Flight.findOneAndUpdate(id, update, err => {
     if (err) return res.json({ success: false, error: err });
@@ -25,54 +25,54 @@ router.post("/updateData", (req, res) => {
   });
 });
 
-router.get("/getCurrentAirport", (req, res) => {
+router.get('/getCurrentAirport', (req, res) => {
   User.find({ 'username': req.session.username }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
 });
 
-router.post("/submitCurrentAirport", (req, res) => {
+router.post('/submitCurrentAirport', (req, res) => {
   var { update } = req.body;
   var username = req.session.username;
-  User.findOneAndUpdate({ "username": username }, update, err => {
+  User.findOneAndUpdate({ 'username': username }, update, err => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
   });
 });
 
-router.get("/getAirportUsers", (req, res) => {
+router.get('/getAirportUsers', (req, res) => {
   var { airport } = req.query;
-  User.find({ "airport": airport }, (err, data) => {
+  User.find({ 'airport': airport }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
 });
 
-router.get("/getPublic", (req, res) => {
+router.get('/getPublic', (req, res) => {
   User.find({ 'username': req.session.username }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
 });
 
-router.post("/changePublic", (req, res) => {
+router.post('/changePublic', (req, res) => {
   var { update } = req.body;
   var username = req.session.username;
-  User.findOneAndUpdate({ "username": username }, update, err => {
+  User.findOneAndUpdate({ 'username': username }, update, err => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
   });
 });
 
-router.get("/getPublicUsers", (req, res) => {
-  User.find({ "public": true }, (err, data) => {
+router.get('/getPublicUsers', (req, res) => {
+  User.find({ 'public': true }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
 });
 
-router.get("/getPublicLog", (req, res) => {
+router.get('/getPublicLog', (req, res) => {
   var { username } = req.query;
   Flight.find({ 'username': username }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
@@ -80,29 +80,29 @@ router.get("/getPublicLog", (req, res) => {
   });
 });
 
-router.delete("/deleteData", (req, res) => {
+router.delete('/deleteData', (req, res) => {
   var { id } = req.body;
-  Flight.findOneAndDelete({ "_id": id }, err => {
+  Flight.findOneAndDelete({ '_id': id }, err => {
     if (err) return res.json({ success: false });
     return res.json({ success: true });
   });
 });
 
-router.delete("/deleteImage", (req, res) => {
+router.delete('/deleteImage', (req, res) => {
   var { id } = req.body;
-  Image.findOneAndDelete({ "_id": id }, err => {
+  Image.findOneAndDelete({ '_id': id }, err => {
     if (err) return res.json({ success: false });
     return res.json({ success: true });
   });
 });
 
-router.post("/putData", (req, res) => {
+router.post('/putData', (req, res) => {
   var data = new Flight();
   var { date, airline, flight_number, from, to, aircraft, reg } = req.body;
   if (!date || !airline || !flight_number || !from || !to || !aircraft || !reg) {
     return res.json({
       success: false,
-      error: "INVALID INPUTS"
+      error: 'INVALID INPUTS'
     });
   }
   data.date = date;
@@ -119,13 +119,13 @@ router.post("/putData", (req, res) => {
   });
 });
 
-router.post("/createUser", (req, res) => {
+router.post('/createUser', (req, res) => {
   var data = new User();
   var { username, password } = req.body;
   if (!username || !password) {
     return res.json({
       success: false,
-      error: "INVALID INPUTS"
+      error: 'INVALID INPUTS'
     });
   }
   data.username = username;
@@ -138,11 +138,11 @@ router.post("/createUser", (req, res) => {
   });
 });
 
-router.post("/login", (req, res) => {
+router.post('/login', (req, res) => {
   if (!req.body.username || !req.body.password) {
     return res.json({
       success: false,
-      error: "INVALID INPUTS"
+      error: 'INVALID INPUTS'
     });
   }
   User.authenticate(req.body.username, req.body.password, (err, user) => {
