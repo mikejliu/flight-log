@@ -1,18 +1,16 @@
-// overall structure adapted from https://medium.com/javascript-in-plain-english/full-stack-mongodb-react-node-js-express-js-in-one-simple-app-6cc8ed6de274
-
-const mongoose = require("mongoose");
-const express = require("express");
+var mongoose = require("mongoose");
+var express = require("express");
 var cors = require('cors');
-const bodyParser = require("body-parser");
-const logger = require("morgan");
-const Schema = mongoose.Schema;
-const bcrypt = require("bcrypt");
-const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
-const fs = require("fs");
-const multer = require("multer");
+var bodyParser = require("body-parser");
+var logger = require("morgan");
+var Schema = mongoose.Schema;
+var bcrypt = require("bcrypt");
+var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
+var fs = require("fs");
+var multer = require("multer");
 
-const flightSchema = new Schema(
+var FlightSchema = new Schema(
   {
     date: String,
     airline: String,
@@ -23,23 +21,23 @@ const flightSchema = new Schema(
     reg: String,
     username: String
   },
-  {collection: 'flights' }
+  { collection: 'flights' }
 );
-const Flight = mongoose.model('Flight', flightSchema);
+var Flight = mongoose.model('Flight', FlightSchema);
 
-const imageSchema = new Schema(
+var ImageSchema = new Schema(
   {
-    img:{
+    img: {
       data: Buffer,
       contentType: String
     },
     username: String
   },
-  {collection: 'images' }
+  { collection: 'images' }
 );
-const Image = mongoose.model('Image',imageSchema);
+var Image = mongoose.model('Image', ImageSchema);
 
-const userSchema = new Schema(
+var UserSchema = new Schema(
   {
     username: {
       type: String,
@@ -52,20 +50,20 @@ const userSchema = new Schema(
       required: true,
     },
     airport: {
-      type:String,
+      type: String,
       required: false,
     },
-    public:{
+    public: {
       type: Boolean,
       required: true,
     }
   },
-  {collection: 'users' }
+  { collection: 'users' }
 );
 
-userSchema.pre('save', function (next) {
+UserSchema.pre('save', function (next) {
   var user = this;
-  bcrypt.hash(user.password, 10, function (err, hash){
+  bcrypt.hash(user.password, 10, function (err, hash) {
     if (err) {
       return next(err);
     }
@@ -74,7 +72,7 @@ userSchema.pre('save', function (next) {
   })
 });
 
-userSchema.statics.authenticate = function (username, password, callback) {
+UserSchema.statics.authenticate = function (username, password, callback) {
   User.findOne({ username: username })
     .exec(function (err, user) {
       if (err) {
@@ -95,40 +93,35 @@ userSchema.statics.authenticate = function (username, password, callback) {
       })
     });
 }
-const User = mongoose.model('User', userSchema);
+var User = mongoose.model('User', UserSchema);
 
-const API_PORT = 3001;
-const router = express.Router();
-const app = express();
-app.use(cors({credentials: true, origin: true}));
+var API_PORT = 3001;
+var router = express.Router();
+var app = express();
+app.use(cors({ credentials: true, origin: true }));
 
-// this is our MongoDB database
-const dbRoute = "mongodb+srv://guest:guest_passwd@cluster0-tw5wq.mongodb.net/flight-log?retryWrites=true";
+/**
+ * Set up mongoose connection
+ */
+var dbRoute = 'mongodb+srv://guest:guest_passwd@cluster0-tw5wq.mongodb.net/flight-log?retryWrites=true';
+mongoose.connect(dbRoute, { useNewUrlParser: true });
+var db = mongoose.connection;
+db.once('open', () => console.log('Connected to database'));
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-// connects our back end code with the database
-mongoose.connect(
-  dbRoute,
-  { useNewUrlParser: true }
-);
 app.use(session({
   secret: 'work hard',
   resave: false,
   saveUninitialized: false,
-  store: new MongoStore({ mongooseConnection: mongoose.connection })
+  store: new MongoStore({ mongooseConnection: db })
 }));
 
-app.use(multer({ dest: './uploads/',
+app.use(multer({
+  dest: './uploads/',
   rename: function (fieldname, filename) {
     return filename;
   },
- }).single("avatar"));
-
-let db = mongoose.connection;
-
-db.once("open", () => console.log("connected to the database"));
-
-// checks if connection with the database is successful
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
+}).single("avatar"));
 
 // (optional) only made for logging and
 // bodyParser, parses the request body to be a readable json format
@@ -138,14 +131,14 @@ app.use(logger("dev"));
 
 
 router.get("/getData", (req, res) => {
-  Flight.find({'username': req.session.username},(err, data) => {
+  Flight.find({ 'username': req.session.username }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
 });
 
 router.get("/getImage", (req, res) => {
-  Image.find({'username': req.session.username},(err, data) => {
+  Image.find({ 'username': req.session.username }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
@@ -153,7 +146,7 @@ router.get("/getImage", (req, res) => {
 
 
 router.post("/updateData", (req, res) => {
-  const { id, update } = req.body;
+  var { id, update } = req.body;
   Flight.findOneAndUpdate(id, update, err => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
@@ -161,55 +154,55 @@ router.post("/updateData", (req, res) => {
 });
 
 router.get("/getCurrentAirport", (req, res) => {
-  User.find({'username': req.session.username},(err, data) => {
+  User.find({ 'username': req.session.username }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
 });
 
 router.post("/submitCurrentAirport", (req, res) => {
-  const { update } = req.body;
-  const username = req.session.username;
-  User.findOneAndUpdate({"username":username}, update, err => {
+  var { update } = req.body;
+  var username = req.session.username;
+  User.findOneAndUpdate({ "username": username }, update, err => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
   });
 });
 
 router.get("/getAirportUsers", (req, res) => {
-  const { airport } = req.query;
-  User.find({"airport": airport},(err, data) => {
+  var { airport } = req.query;
+  User.find({ "airport": airport }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
 });
 
 router.get("/getPublic", (req, res) => {
-  User.find({'username': req.session.username},(err, data) => {
+  User.find({ 'username': req.session.username }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
 });
 
 router.post("/changePublic", (req, res) => {
-  const { update } = req.body;
-  const username = req.session.username;
-  User.findOneAndUpdate({"username":username}, update, err => {
+  var { update } = req.body;
+  var username = req.session.username;
+  User.findOneAndUpdate({ "username": username }, update, err => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
   });
 });
 
 router.get("/getPublicUsers", (req, res) => {
-  User.find({"public": true},(err, data) => {
+  User.find({ "public": true }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
 });
 
 router.get("/getPublicLog", (req, res) => {
-  const { username } = req.query;
-  Flight.find({'username': username},(err, data) => {
+  var { username } = req.query;
+  Flight.find({ 'username': username }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
@@ -217,16 +210,16 @@ router.get("/getPublicLog", (req, res) => {
 
 
 router.delete("/deleteData", (req, res) => {
-  const { id } = req.body;
-  Flight.findOneAndDelete({"_id":id}, err => {
+  var { id } = req.body;
+  Flight.findOneAndDelete({ "_id": id }, err => {
     if (err) return res.json({ success: false });
     return res.json({ success: true });
   });
 });
 
 router.delete("/deleteImage", (req, res) => {
-  const { id } = req.body;
-  Image.findOneAndDelete({"_id":id}, err => {
+  var { id } = req.body;
+  Image.findOneAndDelete({ "_id": id }, err => {
     if (err) return res.json({ success: false });
     return res.json({ success: true });
   });
@@ -234,9 +227,9 @@ router.delete("/deleteImage", (req, res) => {
 
 
 router.post("/putData", (req, res) => {
-  let data = new Flight();
-  const { date,airline,flight_number,from,to,aircraft,reg } = req.body;
-  if (!date || !airline || !flight_number || !from || !to || ! aircraft || !reg) {
+  var data = new Flight();
+  var { date, airline, flight_number, from, to, aircraft, reg } = req.body;
+  if (!date || !airline || !flight_number || !from || !to || !aircraft || !reg) {
     return res.json({
       success: false,
       error: "INVALID INPUTS"
@@ -258,8 +251,8 @@ router.post("/putData", (req, res) => {
 
 
 router.post("/createUser", (req, res) => {
-  let data = new User();
-  const { username, password } = req.body;
+  var data = new User();
+  var { username, password } = req.body;
   if (!username || !password) {
     return res.json({
       success: false,
@@ -277,7 +270,7 @@ router.post("/createUser", (req, res) => {
 });
 
 router.post("/login", (req, res) => {
-  if(!req.body.username || !req.body.password){
+  if (!req.body.username || !req.body.password) {
     return res.json({
       success: false,
       error: "INVALID INPUTS"
@@ -290,10 +283,10 @@ router.post("/login", (req, res) => {
   });
 });
 
-router.get('/logout', function(req, res) {
+router.get('/logout', function (req, res) {
   if (req.session) {
-    req.session.destroy(function(err) {
-      if(err) {
+    req.session.destroy(function (err) {
+      if (err) {
         return res.json({ success: false, error: err });
       } else {
         return res.json({ success: true });
@@ -303,17 +296,17 @@ router.get('/logout', function(req, res) {
 });
 
 // https://medium.com/@colinrlly/send-store-and-show-images-with-react-express-and-mongodb-592bc38a9ed
-router.post('/photo',function(req,res){
+router.post('/photo', function (req, res) {
   var newItem = new Image();
   newItem.username = req.session.username;
-  let file = req.file;
+  var file = req.file;
   newItem.img.data = fs.readFileSync(file.path);
   newItem.img.contentType = file.mimetype;
   newItem.save((err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
- });
+});
 
 // append /api for our http requests
 app.use("/api", router);

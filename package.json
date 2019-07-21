@@ -1,10 +1,10 @@
 {
-  "name": "spring2019-cp-group-448262-444533",
+  "name": "flight-log",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently \"cd backend && node server.js\" \"cd flight-log && npm start\""
+    "start": "concurrently \"cd backend && node server.js\" \"cd frontend && npm start\""
   },
   "repository": {
     "type": "git",
@@ -15,6 +15,6 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/cse330/spring2019-cp-group-448262-444533#readme",
   "dependencies": {
-    "concurrently": "^4.1.0"
+    "concurrently": "^4.1.1"
   }
 }
