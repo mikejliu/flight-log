@@ -3,10 +3,41 @@ var router = express.Router();
 var fs = require('fs');
 var { Flight, Image, User } = require('./../models/models');
 
-router.get('/getData', (req, res) => {
+router.get('/getEntry', (req, res) => {
   Flight.find({ 'username': req.session.username }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
+  });
+});
+
+router.post('/addEntry', (req, res) => {
+  var data = new Flight();
+  var { date, airline, flight_number, from, to, aircraft, reg } = req.body;
+  if (!date || !airline || !flight_number || !from || !to || !aircraft || !reg) {
+    return res.json({
+      success: false,
+      error: 'INVALID INPUTS'
+    });
+  }
+  data.date = date;
+  data.airline = airline;
+  data.flight_number = flight_number;
+  data.from = from;
+  data.to = to;
+  data.aircraft = aircraft;
+  data.reg = reg;
+  data.username = req.session.username;
+  data.save((err, data) => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true, data: data });
+  });
+});
+
+router.delete('/deleteEntry', (req, res) => {
+  var { id } = req.body;
+  Flight.findOneAndDelete({ '_id': id }, err => {
+    if (err) return res.json({ success: false });
+    return res.json({ success: true });
   });
 });
 
@@ -14,6 +45,27 @@ router.get('/getImage', (req, res) => {
   Image.find({ 'username': req.session.username }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
+  });
+});
+
+// https://medium.com/@colinrlly/send-store-and-show-images-with-react-express-and-mongodb-592bc38a9ed
+router.post('/uploadImage', function (req, res) {
+  var newItem = new Image();
+  newItem.username = req.session.username;
+  var file = req.file;
+  newItem.img.data = fs.readFileSync(file.path);
+  newItem.img.contentType = file.mimetype;
+  newItem.save((err, data) => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true, data: data });
+  });
+});
+
+router.delete('/deleteImage', (req, res) => {
+  var { id } = req.body;
+  Image.findOneAndDelete({ '_id': id }, err => {
+    if (err) return res.json({ success: false });
+    return res.json({ success: true });
   });
 });
 
@@ -80,45 +132,6 @@ router.get('/getPublicLog', (req, res) => {
   });
 });
 
-router.delete('/deleteData', (req, res) => {
-  var { id } = req.body;
-  Flight.findOneAndDelete({ '_id': id }, err => {
-    if (err) return res.json({ success: false });
-    return res.json({ success: true });
-  });
-});
-
-router.delete('/deleteImage', (req, res) => {
-  var { id } = req.body;
-  Image.findOneAndDelete({ '_id': id }, err => {
-    if (err) return res.json({ success: false });
-    return res.json({ success: true });
-  });
-});
-
-router.post('/putData', (req, res) => {
-  var data = new Flight();
-  var { date, airline, flight_number, from, to, aircraft, reg } = req.body;
-  if (!date || !airline || !flight_number || !from || !to || !aircraft || !reg) {
-    return res.json({
-      success: false,
-      error: 'INVALID INPUTS'
-    });
-  }
-  data.date = date;
-  data.airline = airline;
-  data.flight_number = flight_number;
-  data.from = from;
-  data.to = to;
-  data.aircraft = aircraft;
-  data.reg = reg;
-  data.username = req.session.username;
-  data.save((err, data) => {
-    if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, data: data });
-  });
-});
-
 router.post('/createUser', (req, res) => {
   var data = new User();
   var { username, password } = req.body;
@@ -162,19 +175,6 @@ router.get('/logout', function (req, res) {
       }
     });
   }
-});
-
-// https://medium.com/@colinrlly/send-store-and-show-images-with-react-express-and-mongodb-592bc38a9ed
-router.post('/photo', function (req, res) {
-  var newItem = new Image();
-  newItem.username = req.session.username;
-  var file = req.file;
-  newItem.img.data = fs.readFileSync(file.path);
-  newItem.img.contentType = file.mimetype;
-  newItem.save((err, data) => {
-    if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, data: data });
-  });
 });
 
 module.exports = router;
