@@ -36,9 +36,9 @@ class Image extends Component {
           src={'data:' + img.img.contentType + ';base64,' + this.arrayBufferToBase64(img.img.data.data)}
           alt='alt text'
           className="image" />
-        <div style={{ textAlign: "center" }}>
+        {this.props.own && <div style={{ textAlign: "center" }}>
           <button style={{ marginLeft: "auto", marginRight: "auto" }} onClick={this.deleteImageFromDb}>Delete</button>
-        </div>
+        </div>}
       </div>
     );
   }

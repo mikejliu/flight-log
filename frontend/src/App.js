@@ -4,14 +4,11 @@ import AddEntryForm from './components/AddEntryForm';
 import SortButtons from './components/SortButtons';
 import Entry from './components/Entry';
 import Public from './components/Public';
-import Image from './components/Image';
-import UploadImageForm from './components/UploadImageForm';
 axios.defaults.withCredentials = true;
 
 class App extends Component {
   state = {
     data: [],
-    images: [],
     sort_date: false,
     sort_airline: false,
     sort_flight_number: false,
@@ -48,15 +45,6 @@ class App extends Component {
         console.log(error);
       });
   }
-
-  getImageFromDb = () => {
-    axios.get("http://localhost:3001/api/getImage").then(function (response) {
-      this.setState({ images: response.data.data });
-    }.bind(this))
-      .catch(function (error) {
-        console.log(error);
-      });
-  };
 
   getDataFromDb = () => {
     axios.get("http://localhost:3001/api/getPublic").then(function (response) {
@@ -145,7 +133,6 @@ class App extends Component {
         this.setState({ login_warning: response.data.error });
       } else {
         this.getEntryFromDb();
-        this.getImageFromDb();
         this.getDataFromDb();
         this.setState({ login_warning: "" });
         this.setState({ create_user_warning: "" });
@@ -166,7 +153,6 @@ class App extends Component {
       } else {
         this.setState({ logged_in: false });
         this.setState({ data: [] });
-        this.setState({ images: [] });
         this.setState({ current_airport_users: [] });
         this.setState({ public_users: [] });
         this.setState({ view_public: false });
@@ -211,29 +197,22 @@ class App extends Component {
   }
 
   render() {
-    var { data, images, current_airport_users, logged_in, public_users } = this.state;
+    var { data, current_airport_users, logged_in, public_users } = this.state;
     if (logged_in) {
       return (
         <div>
           <AddEntryForm getEntryFromDb={this.getEntryFromDb} />
-          <UploadImageForm getImageFromDb={this.getImageFromDb} />
           <SortButtons sort={this.sort} />
           <ul>
             {data.length <= 0
               ? "You do not have any entry"
               : data.map(dat => (
-                <Entry dat={dat} getEntryFromDb={this.getEntryFromDb} canDelete={true} />
+                <Entry dat={dat} getEntryFromDb={this.getEntryFromDb} own={true} />
               ))}
           </ul>
 
 
-          <div style={{ padding: "10px" }}>
-            {images.length <= 0
-              ? "You do not have any image"
-              : images.map(img => (
-                <Image img={img} getImageFromDb={this.getImageFromDb} />
-              ))}
-          </div>
+          
           <div style={{ padding: "10px" }}>
             <div className="title">Your Current Airport <span>
               {this.state.current_airport}

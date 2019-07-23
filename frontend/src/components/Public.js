@@ -49,7 +49,7 @@ class Public extends Component {
           {public_log.length <= 0
             ? "This user does not have any entry"
             : public_log.map(dat => (
-              <Entry dat={dat} canDelete={false} />
+              <Entry dat={dat} own={false} />
             ))}
         </ul>) : (<div>Select a public user to view their flight log</div>)}
         {view_public && <button onClick={this.hidePublic}>

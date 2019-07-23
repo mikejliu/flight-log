@@ -37,12 +37,16 @@ router.delete('/deleteEntry', (req, res) => {
   var { id } = req.body;
   Flight.findOneAndDelete({ '_id': id }, err => {
     if (err) return res.json({ success: false });
-    return res.json({ success: true });
+    Image.deleteMany({ 'flight_id': id }, err => {
+      if (err) return res.json({ success: false });
+      return res.json({ success: true });
+    });
   });
 });
 
 router.get('/getImage', (req, res) => {
-  Image.find({ 'username': req.session.username }, (err, data) => {
+  var { flight_id } = req.query;
+  Image.find({ 'flight_id': flight_id }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
@@ -51,7 +55,7 @@ router.get('/getImage', (req, res) => {
 // https://medium.com/@colinrlly/send-store-and-show-images-with-react-express-and-mongodb-592bc38a9ed
 router.post('/uploadImage', function (req, res) {
   var newItem = new Image();
-  newItem.username = req.session.username;
+  newItem.flight_id = req.body.flight_id;
   var file = req.file;
   newItem.img.data = fs.readFileSync(file.path);
   newItem.img.contentType = file.mimetype;

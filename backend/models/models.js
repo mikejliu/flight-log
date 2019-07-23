@@ -23,7 +23,7 @@ var ImageSchema = new Schema(
       data: Buffer,
       contentType: String
     },
-    username: String
+    flight_id: String
   },
   { collection: 'images' }
 );

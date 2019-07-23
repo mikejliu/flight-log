@@ -13,6 +13,7 @@ class UploadImageForm extends Component {
     var formData = new FormData();
 
     formData.append("avatar", this.state.selectedImg);
+    formData.append("flight_id", this.props.flight_id);
     axios.post("http://localhost:3001/api/uploadImage", formData).then(function (response) {
       if (response.data.success) {
         this.props.getImageFromDb();
@@ -31,7 +32,7 @@ class UploadImageForm extends Component {
     return (
       <div style={{ padding: "10px" }}>
         <div className="title">Upload Image</div>
-        <form onSubmit={this.uploadImageToDb}>
+        <form onSubmit={this.uploadImageToDb} enctype="multipart/form-data" >
           <input type="file" name="avatar" id="imageToUpload" onChange={this.changeSelectedImage} />
           <input type="submit" value="Upload" />
         </form>
