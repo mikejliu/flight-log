@@ -249,11 +249,13 @@ class App extends Component {
           </button></div>
           <div style={{ padding: "10px" }}>
             {(current_airport_users.length > 0) ? (<div className="title">Current Users at {this.state.current_airport}</div>) : (<div>Please update your current airport to see list of users near you</div>)}
-            <ul>
+            <ul className="list-group">
               {current_airport_users.length <= 0
-                ? ""
+                ? <li className="list-group-item disabled">
+                No users
+              </li>
                 : current_airport_users.map(user => (
-                  <li>
+                  <li className="list-group-item">
                     {user.username}
                   </li>
                 ))}

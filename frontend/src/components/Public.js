@@ -12,7 +12,7 @@ class Public extends Component {
 
   viewPublic = e => {
     this.setState({ view_public: true });
-    var publicUsername = e.target.parentNode.id;
+    var publicUsername = e.target.id;
     axios.get("http://localhost:3001/api/getPublicLog", {
       params: { username: publicUsername }
     }).then(function (response) {
@@ -30,22 +30,21 @@ class Public extends Component {
 
   render() {
     var { view_public, public_log } = this.state;
-    var public_users = this.props.public_users;
+    var { public_users } = this.props;
     return (
       <div style={{ padding: "10px" }}>
         <div className="title">List of Public Users</div>
-        <ul>
+        <div className="list-group">
           {public_users.length <= 0
-            ? "No public users"
-            : public_users.map(user => (
-              <li id={user.username}>
-                {user.username}
-                <button onClick={this.viewPublic}>
-                  View
+            ? <button type="button" className="list-group-item list-group-item-action" disabled>
+            No public users
           </button>
-              </li>
+            : public_users.map(user => (
+              <button type="button" className="list-group-item list-group-item-action" onClick={this.viewPublic} id={user.username}>
+                {user.username}
+              </button>
             ))}
-        </ul>
+        </div>
         {view_public ? (<Table striped bordered hover>
             <thead>
               <tr>
