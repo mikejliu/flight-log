@@ -30,13 +30,10 @@ class UploadImageForm extends Component {
 
   render() {
     return (
-      <div style={{ padding: "10px" }}>
-        <div className="title">Upload Image</div>
-        <form onSubmit={this.uploadImageToDb} enctype="multipart/form-data" >
-          <input type="file" name="avatar" id="imageToUpload" onChange={this.changeSelectedImage} />
-          <input type="submit" value="Upload" />
-        </form>
-      </div>
+      <form onSubmit={this.uploadImageToDb} enctype="multipart/form-data" >
+        <input type="file" name="avatar" id="imageToUpload" onChange={this.changeSelectedImage} />
+        <input type="submit" value="Upload" />
+      </form>
     );
   }
 }

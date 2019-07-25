@@ -4,6 +4,7 @@ import AddEntryForm from './components/AddEntryForm';
 import SortButtons from './components/SortButtons';
 import Entry from './components/Entry';
 import Public from './components/Public';
+import Table from 'react-bootstrap/Table';
 axios.defaults.withCredentials = true;
 
 class App extends Component {
@@ -203,16 +204,35 @@ class App extends Component {
         <div>
           <AddEntryForm getEntryFromDb={this.getEntryFromDb} />
           <SortButtons sort={this.sort} />
-          <ul>
+
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Airline</th>
+                <th>Flight Number</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Aircraft Type</th>
+                <th>Aircraft Reg</th>
+                <th>Delete</th>
+                <th>Upload Image</th>
+                <th>Show Image</th>
+              </tr>
+            </thead>
+            <tbody>
             {data.length <= 0
-              ? "You do not have any entry"
+              ? <tr><td colSpan="10">You do not have any entry</td></tr>
               : data.map(dat => (
                 <Entry dat={dat} getEntryFromDb={this.getEntryFromDb} own={true} />
               ))}
-          </ul>
-
+            </tbody>
+          </Table>
 
           
+
+
+
           <div style={{ padding: "10px" }}>
             <div className="title">Your Current Airport <span>
               {this.state.current_airport}

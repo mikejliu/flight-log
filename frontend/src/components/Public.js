@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import Entry from './Entry';
+import Table from 'react-bootstrap/Table';
 axios.defaults.withCredentials = true;
 
 class Public extends Component {
@@ -45,13 +46,27 @@ class Public extends Component {
               </li>
             ))}
         </ul>
-        {view_public ? (<ul>
-          {public_log.length <= 0
-            ? "This user does not have any entry"
-            : public_log.map(dat => (
-              <Entry dat={dat} own={false} />
-            ))}
-        </ul>) : (<div>Select a public user to view their flight log</div>)}
+        {view_public ? (<Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Airline</th>
+                <th>Flight Number</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Aircraft Type</th>
+                <th>Aircraft Reg</th>
+                <th>Show Image</th>
+              </tr>
+            </thead>
+            <tbody>
+            {public_log.length <= 0
+              ? <tr><td colSpan="8">This user does not have any entry</td></tr>
+              : public_log.map(dat => (
+                <Entry dat={dat} own={false} />
+              ))}
+            </tbody>
+          </Table>) : (<div>Select a public user to view their flight log</div>)}
         {view_public && <button onClick={this.hidePublic}>
           Hide
           </button>}
