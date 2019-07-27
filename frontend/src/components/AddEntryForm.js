@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
+import Alert from 'react-bootstrap/Alert';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 axios.defaults.withCredentials = true;
@@ -13,8 +14,18 @@ class AddEntryForm extends Component {
     input_to: null,
     input_aircraft: null,
     input_reg: null,
-    add_warning: ""
+    add_warning: "",
+    show_fail: false,
+    show_success: false
   };
+
+  hideFail = () => {
+    this.setState({ show_fail: false });
+  }
+
+  hideSuccess = () => {
+    this.setState({ show_success: false });
+  }
 
   addEntryToDb = () => {
 
@@ -31,9 +42,11 @@ class AddEntryForm extends Component {
     }).then(function (response) {
       if (!response.data.success) {
         this.setState({ add_warning: response.data.error });
+        this.setState({ show_fail: true });
       } else {
-        this.props.getEntryFromDb();
+        this.setState({ show_success: true });
         this.setState({ add_warning: "" });
+        this.props.getEntryFromDb();
       }
     }.bind(this))
       .catch(function (error) {
@@ -57,6 +70,7 @@ class AddEntryForm extends Component {
   }
 
   render() {
+    var { add_warning, show_fail, show_success } = this.state;
     return (
       <div style={{ padding: "10px" }}>
         <div className="title">Add Entry</div>
@@ -145,10 +159,9 @@ class AddEntryForm extends Component {
         <button className="btn btn-primary btn-block" onClick={() => this.addEntryToDb()}>
           Add
           </button>
-        <span>
-          {this.state.add_warning}
-        </span>
-      </div >
+        {show_success && <Alert variant="success" onClose={this.hideSuccess} dismissible>Entry added successfully</Alert>}
+        {show_fail && <Alert variant="danger" onClose={this.hideFail} dismissible>{add_warning}</Alert>}
+      </div>
     );
   }
 }
