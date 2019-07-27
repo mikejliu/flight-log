@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import axios from "axios";
-import Button from 'react-bootstrap/Button'
 axios.defaults.withCredentials = true;
 
 class Image extends Component {
@@ -38,7 +37,7 @@ class Image extends Component {
           alt='alt text'
           className="d-block w-100" />
         {this.props.own && 
-          <Button variant="danger" size="sm" className="d-block mx-auto" onClick={this.deleteImageFromDb}>Delete</Button>
+          <button className="btn btn-danger btn-sm d-block mx-auto" onClick={this.deleteImageFromDb}>Delete</button>
         }
       </div>
     );

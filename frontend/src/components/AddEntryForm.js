@@ -60,59 +60,95 @@ class AddEntryForm extends Component {
     return (
       <div style={{ padding: "10px" }}>
         <div className="title">Add Entry</div>
-        <DatePicker
-          selected={this.state.input_date}
-          onChange={this.changeDate}
-        />
-        <input
-          name="input_airline"
-          type="text"
-          onChange={this.handleInputChange}
-          placeholder="Airline"
-          style={{ width: "200px" }}
-        />
-        <input
-          name="input_flight_number"
-          type="text"
-          onChange={this.handleInputChange}
-          placeholder="Flight Number"
-          style={{ width: "200px" }}
-        />
-        <input
-          name="input_from"
-          type="text"
-          onChange={this.handleInputChange}
-          placeholder="From"
-          style={{ width: "200px" }}
-        />
-        <input
-          name="input_to"
-          type="text"
-          onChange={this.handleInputChange}
-          placeholder="To"
-          style={{ width: "200px" }}
-        />
-        <input
-          name="input_aircraft"
-          type="text"
-          onChange={this.handleInputChange}
-          placeholder="Aircraft Type"
-          style={{ width: "200px" }}
-        />
-        <input
-          name="input_reg"
-          type="text"
-          onChange={this.handleInputChange}
-          placeholder="Aircraft Reg"
-          style={{ width: "200px" }}
-        />
-        <button onClick={() => this.addEntryToDb()}>
+        <div className="form-row">
+          <div className="form-group col-md-4">
+            <div><label for="input_date">Date</label></div>
+            <DatePicker
+              id="input_date"
+              name="input_date"
+              className="form-control"
+              selected={this.state.input_date}
+              onChange={this.changeDate}
+            />
+          </div>
+          <div className="form-group col-md-4">
+            <label for="input_from">From</label>
+            <input
+              id="input_from"
+              name="input_from"
+              className="form-control"
+              type="text"
+              onChange={this.handleInputChange}
+              placeholder="PEK"
+            />
+          </div>
+          <div className="form-group col-md-4">
+            <label for="input_to">To</label>
+            <input
+              id="input_to"
+              name="input_to"
+              className="form-control"
+              type="text"
+              onChange={this.handleInputChange}
+              placeholder="ORD"
+            />
+          </div>
+        </div>
+        <div className="form-row">
+          <div className="form-group col-md-6">
+            <label for="input_airline">Airline</label>
+            <input
+              id="input_airline"
+              name="input_airline"
+              className="form-control"
+              type="text"
+              onChange={this.handleInputChange}
+              placeholder="American Airlines"
+            />
+          </div>
+          <div className="form-group col-md-6">
+            <label for="input_flight_number">Flight Number</label>
+            <input
+              id="input_flight_number"
+              name="input_flight_number"
+              className="form-control"
+              type="text"
+              onChange={this.handleInputChange}
+              placeholder="AA186"
+            />
+          </div>
+        </div>
+        <div className="form-row">
+          <div className="form-group col-md-6">
+            <label for="input_aircraft">Aircraft Type</label>
+            <input
+              id="input_aircraft"
+              name="input_aircraft"
+              className="form-control"
+              type="text"
+              onChange={this.handleInputChange}
+              placeholder="B772"
+            />
+          </div>
+          <div className="form-group col-md-6">
+            <label for="input_reg">Aircraft Reg</label>
+            <input
+              id="input_reg"
+              name="input_reg"
+              className="form-control"
+              type="text"
+              onChange={this.handleInputChange}
+              placeholder="N779AN"
+            />
+          </div>
+        </div>
+        <button className="btn btn-primary btn-block" onClick={() => this.addEntryToDb()}>
           Add
           </button>
         <span>
           {this.state.add_warning}
         </span>
-      </div>
+      </div >
     );
   }
 }

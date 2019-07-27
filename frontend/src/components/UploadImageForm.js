@@ -32,7 +32,7 @@ class UploadImageForm extends Component {
     return (
       <form onSubmit={this.uploadImageToDb} enctype="multipart/form-data" >
         <input type="file" name="avatar" id="imageToUpload" onChange={this.changeSelectedImage} />
-        <input type="submit" value="Upload" />
+        <input className="btn btn-primary btn-sm" type="submit" value="Upload" />
       </form>
     );
   }

@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import axios from "axios";
 import UploadImageForm from "./UploadImageForm";
 import Image from "./Image";
-import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 axios.defaults.withCredentials = true;
 
@@ -63,9 +62,9 @@ class Entry extends Component {
           <td>{dat.to}</td>
           <td>{dat.aircraft}</td>
           <td>{dat.reg}</td>
-          {this.props.own && <td><Button variant="danger" onClick={this.deleteEntryFromDb}>Delete</Button></td>}
           {this.props.own && <td><UploadImageForm flight_id={dat._id} getImageFromDb={this.getImageFromDb} /></td>}
-          <td><Button variant="primary" onClick={this.showImage}>Show Image</Button></td>
+          <td><button className="btn btn-primary btn-sm" onClick={this.showImage}>Show Image</button></td>
+          {this.props.own && <td><button className="btn btn-danger btn-sm" onClick={this.deleteEntryFromDb}>Delete</button></td>}
         </tr>
         <Modal show={view_images} onHide={this.hideImage}>
           <Modal.Header closeButton>

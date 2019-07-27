@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import AddEntryForm from './components/AddEntryForm';
-import SortButtons from './components/SortButtons';
+import SortButton from './components/SortButton';
 import Entry from './components/Entry';
 import Public from './components/Public';
 import Table from 'react-bootstrap/Table';
@@ -17,7 +17,7 @@ class App extends Component {
     sort_to: false,
     sort_aircraft: false,
     sort_reg: false,
-    current_airport: "",
+    current_airport: null,
     input_current_airport: null,
     current_airport_users: [],
     user_username: null,
@@ -63,19 +63,18 @@ class App extends Component {
       });
     axios.get("http://localhost:3001/api/getCurrentAirport").then(function (response) {
       this.setState({ current_airport: response.data.data[0].airport });
-      axios.get("http://localhost:3001/api/getAirportUsers", {
-        params: { airport: this.state.current_airport }
-      }).then(function (response) {
-        if (this.state.current_airport === null || this.state.current_airport === "") {
-          this.setState({ current_airport_users: [] })
-        }
-        else {
+      if (this.state.current_airport === null || this.state.current_airport === "") {
+        this.setState({ current_airport_users: [] });
+      } else {
+        axios.get("http://localhost:3001/api/getAirportUsers", {
+          params: { airport: this.state.current_airport }
+        }).then(function (response) {
           this.setState({ current_airport_users: response.data.data })
-        }
-      }.bind(this))
-        .catch(function (error) {
-          console.log(error);
-        });
+        }.bind(this))
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
     }.bind(this))
       .catch(function (error) {
         console.log(error);
@@ -91,6 +90,19 @@ class App extends Component {
         this.getDataFromDb();
       }
     }.bind(this))
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+  leaveCurrentAirport = () => {
+    this.setState({ input_current_airport: '' });
+    axios.post("http://localhost:3001/api/leaveCurrentAirport")
+      .then(function (response) {
+        if (response.data.success) {
+          this.getDataFromDb();
+        }
+      }.bind(this))
       .catch(function (error) {
         console.log(error);
       });
@@ -198,45 +210,43 @@ class App extends Component {
   }
 
   render() {
-    var { data, current_airport_users, logged_in, public_users } = this.state;
+    var { data, current_airport, current_airport_users, logged_in, is_public, public_users } = this.state;
     if (logged_in) {
       return (
         <div>
           <AddEntryForm getEntryFromDb={this.getEntryFromDb} />
-          <SortButtons sort={this.sort} />
-
+          
           <Table striped bordered hover>
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Airline</th>
-                <th>Flight Number</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Aircraft Type</th>
-                <th>Aircraft Reg</th>
-                <th>Delete</th>
+                <th><SortButton sort={this.sort} text="Date" name="sort_date" /></th>
+                <th><SortButton sort={this.sort} text="Airline" name="sort_airline" /></th>
+                <th><SortButton sort={this.sort} text="Flight Number" name="sort_flight_number" /></th>
+                <th><SortButton sort={this.sort} text="From" name="sort_from" /></th>
+                <th><SortButton sort={this.sort} text="To" name="sort_to" /></th>
+                <th><SortButton sort={this.sort} text="Aircraft Type" name="sort_aircraft" /></th>
+                <th><SortButton sort={this.sort} text="Aircraft Reg" name="sort_reg" /></th>
                 <th>Upload Image</th>
                 <th>Show Image</th>
+                <th>Delete</th>
               </tr>
             </thead>
             <tbody>
-            {data.length <= 0
-              ? <tr><td colSpan="10">You do not have any entry</td></tr>
-              : data.map(dat => (
-                <Entry dat={dat} getEntryFromDb={this.getEntryFromDb} own={true} />
-              ))}
+              {data.length <= 0
+                ? <tr><td colSpan="10">You do not have any entry</td></tr>
+                : data.map(dat => (
+                  <Entry dat={dat} getEntryFromDb={this.getEntryFromDb} own={true} />
+                ))}
             </tbody>
           </Table>
 
-          
+
 
 
 
           <div style={{ padding: "10px" }}>
-            <div className="title">Your Current Airport <span>
-              {this.state.current_airport}
-            </span></div>
+            <div className="title">Your Current Airport is {(current_airport !== null && current_airport !== '') ? <span>{current_airport}</span> : 'not set'}
+            </div>
 
             <input
               type="text"
@@ -244,15 +254,18 @@ class App extends Component {
               placeholder="Update Current Airport"
               style={{ width: "200px" }}
             />
-            <button onClick={() => this.submitCurrentAirport()}>
-              Submit
-          </button></div>
-          <div style={{ padding: "10px" }}>
-            {(current_airport_users.length > 0) ? (<div className="title">Current Users at {this.state.current_airport}</div>) : (<div>Please update your current airport to see list of users near you</div>)}
+            <button onClick={this.submitCurrentAirport}>
+              Update
+          </button>
+            {(current_airport !== null && current_airport !== '') && <button onClick={this.leaveCurrentAirport}>
+              Leave this airport
+                </button>}</div>
+          {(current_airport !== null && current_airport !== '') && <div style={{ padding: "10px" }}>
+            <div className="title">Current Users at {current_airport}</div>
             <ul className="list-group">
               {current_airport_users.length <= 0
                 ? <li className="list-group-item disabled">
-                No users
+                  No users
               </li>
                 : current_airport_users.map(user => (
                   <li className="list-group-item">
@@ -260,13 +273,13 @@ class App extends Component {
                   </li>
                 ))}
             </ul>
-          </div>
+          </div>}
 
 
           <div style={{ padding: "10px" }}>
-            <div className="title">Your Flight Log is Currently <span style={{ color: 'red' }}>
-              {this.state.is_public ? 'PUBLIC' : 'PRIVATE'}
-            </span></div>
+            <div className="title">Your Flight Log is Currently
+              {is_public ? <span style={{ color: 'green' }}> PUBLIC</span> : <span style={{ color: 'red' }}> PRIVATE</span>}
+            </div>
             <button onClick={() => this.changePublic()}>
               Change
           </button>

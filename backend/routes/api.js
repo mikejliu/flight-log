@@ -3,6 +3,10 @@ var router = express.Router();
 var fs = require('fs');
 var { Flight, Image, User } = require('./../models/models');
 
+function isInvalid(str) {
+  return str === null || str.match(/^ *$/) !== null;
+}
+
 router.get('/getEntry', (req, res) => {
   Flight.find({ 'username': req.session.username }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
@@ -90,8 +94,22 @@ router.get('/getCurrentAirport', (req, res) => {
 
 router.post('/submitCurrentAirport', (req, res) => {
   var { update } = req.body;
+  if (isInvalid(update.airport)) {
+    return res.json({
+      success: false,
+      error: 'INVALID INPUTS'
+    });
+  }
   var username = req.session.username;
   User.findOneAndUpdate({ 'username': username }, update, err => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true });
+  });
+});
+
+router.post('/leaveCurrentAirport', (req, res) => {
+  var username = req.session.username;
+  User.findOneAndUpdate({ 'username': username }, { airport: null }, err => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
   });
