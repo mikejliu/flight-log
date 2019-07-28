@@ -17,10 +17,10 @@ router.get('/getEntry', (req, res) => {
 router.post('/addEntry', (req, res) => {
   var data = new Flight();
   var { date, airline, flight_number, from, to, aircraft, reg } = req.body;
-  if (!date || !airline || !flight_number || !from || !to || !aircraft || !reg) {
+  if (isInvalid(date) || isInvalid(airline) || isInvalid(flight_number) || isInvalid(from) || isInvalid(to) || isInvalid(aircraft) || isInvalid(reg)) {
     return res.json({
       success: false,
-      error: 'INVALID INPUTS'
+      error: 'Invalid input'
     });
   }
   data.date = date;
@@ -33,7 +33,7 @@ router.post('/addEntry', (req, res) => {
   data.username = req.session.username;
   data.save((err, data) => {
     if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, data: data });
+    return res.json({ success: true });
   });
 });
 
@@ -157,10 +157,10 @@ router.get('/getPublicLog', (req, res) => {
 router.post('/createUser', (req, res) => {
   var data = new User();
   var { username, password } = req.body;
-  if (!username || !password) {
+  if (isInvalid(username) || isInvalid(password)) {
     return res.json({
       success: false,
-      error: 'INVALID INPUTS'
+      error: 'Invalid username or password.'
     });
   }
   data.username = username;
@@ -168,16 +168,20 @@ router.post('/createUser', (req, res) => {
   data.airport = null;
   data.public = false;
   data.save(err => {
-    if (err) return res.json({ success: false, error: err });
+    if (err) {
+      if (err.code === 11000) return res.json({ success: false, error: 'Username already exists.' });
+      return res.json({ success: false, error: 'Cannot create user.' });
+    }
     return res.json({ success: true });
   });
 });
 
 router.post('/login', (req, res) => {
-  if (!req.body.username || !req.body.password) {
+  var { username, password } = req.body;
+  if (isInvalid(username) || isInvalid(password)) {
     return res.json({
       success: false,
-      error: 'INVALID INPUTS'
+      error: 'Invalid username or password.'
     });
   }
   User.authenticate(req.body.username, req.body.password, (err, user) => {

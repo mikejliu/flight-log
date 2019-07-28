@@ -1,7 +1,11 @@
-.title{
-  font-weight: bold;
-  font-size: 18px;
+body {
+  margin-left: 40px;
+  margin-right: 40px;
 }
-.react-datepicker-wrapper, .react-datepicker__input-container{
+.flight-log-section {
+  margin-top: 35px;
+  margin-bottom: 35px;
+}
+.react-datepicker-wrapper, .react-datepicker__input-container {
   width: 100%;
 }

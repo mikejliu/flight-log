@@ -81,43 +81,51 @@ class Public extends Component {
     var { view_public, public_log } = this.state;
     var { public_users } = this.props;
     return (
-      <div style={{ padding: "10px" }}>
-        <div className="title">List of Public Users</div>
+      <div className="flight-log-section">
+        <h1>Public Users</h1>
         <div id="public_users_list" className="list-group">
           {public_users.length <= 0
             ? <button type="button" className="list-group-item list-group-item-action" disabled>
-            No public users
-          </button>
+              No public users
+            </button>
             : public_users.map(user => (
               <button type="button" className="list-group-item list-group-item-action" onClick={this.viewPublic} id={user.username}>
                 {user.username}
               </button>
-            ))}
+            ))
+          }
         </div>
-        {view_public ? (<Table striped bordered hover>
-            <thead>
-              <tr>
-                <th><SortButton sort={this.sort} text="Date" name="sort_date" /></th>
-                <th><SortButton sort={this.sort} text="Airline" name="sort_airline" /></th>
-                <th><SortButton sort={this.sort} text="Flight Number" name="sort_flight_number" /></th>
-                <th><SortButton sort={this.sort} text="From" name="sort_from" /></th>
-                <th><SortButton sort={this.sort} text="To" name="sort_to" /></th>
-                <th><SortButton sort={this.sort} text="Aircraft Type" name="sort_aircraft" /></th>
-                <th><SortButton sort={this.sort} text="Aircraft Reg" name="sort_reg" /></th>
-                <th>Show Image</th>
-              </tr>
-            </thead>
-            <tbody>
-            {public_log.length <= 0
-              ? <tr><td colSpan="8">This user does not have any entry</td></tr>
-              : public_log.map(dat => (
-                <Entry dat={dat} own={false} />
-              ))}
-            </tbody>
-          </Table>) : (<div>Select a public user to view their flight log</div>)}
-        {view_public && <button onClick={this.hidePublic}>
-          Hide
-          </button>}
+        {view_public
+          ? (
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th><SortButton sort={this.sort} text="Date" name="sort_date" /></th>
+                  <th><SortButton sort={this.sort} text="Airline" name="sort_airline" /></th>
+                  <th><SortButton sort={this.sort} text="Flight Number" name="sort_flight_number" /></th>
+                  <th><SortButton sort={this.sort} text="From" name="sort_from" /></th>
+                  <th><SortButton sort={this.sort} text="To" name="sort_to" /></th>
+                  <th><SortButton sort={this.sort} text="Aircraft Type" name="sort_aircraft" /></th>
+                  <th><SortButton sort={this.sort} text="Aircraft Reg" name="sort_reg" /></th>
+                  <th>Show Image</th>
+                </tr>
+              </thead>
+              <tbody>
+                {public_log.length <= 0
+                  ? <tr><td colSpan="8">This user does not have any entry</td></tr>
+                  : public_log.map(dat => (
+                    <Entry dat={dat} own={false} />
+                  ))
+                }
+              </tbody>
+            </Table>
+          ) : (<h5 className="mt-2">Select a user to view their flight log</h5>)
+        }
+        {view_public &&
+          <button className="btn btn-primary btn-sm" onClick={this.hidePublic}>
+            Hide
+          </button>
+        }
       </div>
     );
   }

@@ -27,7 +27,6 @@ class UploadImageForm extends Component {
       if (response.data.success) {
         this.setState({ show_success: true });
         this.setState({ uploading: false });
-        this.props.getImageFromDb();
       }
     }.bind(this))
       .catch(function (error) {
@@ -43,7 +42,7 @@ class UploadImageForm extends Component {
     var { uploading, show_success } = this.state;
     return (
       <>
-        <form onSubmit={this.uploadImageToDb} enctype="multipart/form-data" >
+        <form className="mb-2" onSubmit={this.uploadImageToDb} enctype="multipart/form-data" >
           <input type="file" name="avatar" id="imageToUpload" onChange={this.changeSelectedImage} />
           <Button type="submit" variant="primary" disabled={uploading}>{uploading ? 'Uploading...' : 'Upload'}</Button>
         </form>

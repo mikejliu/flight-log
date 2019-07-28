@@ -28,6 +28,8 @@ class AddEntryForm extends Component {
   }
 
   addEntryToDb = () => {
+    this.setState({ show_success: false });
+    this.setState({ show_fail: false });
 
     axios.post("http://localhost:3001/api/addEntry", {
 
@@ -72,8 +74,8 @@ class AddEntryForm extends Component {
   render() {
     var { add_warning, show_fail, show_success } = this.state;
     return (
-      <div style={{ padding: "10px" }}>
-        <div className="title">Add Entry</div>
+      <div className="flight-log-section">
+        <h1>Add Entry</h1>
         <div className="form-row">
           <div className="form-group col-md-4">
             <div><label for="input_date">Date</label></div>
@@ -158,9 +160,9 @@ class AddEntryForm extends Component {
         </div>
         <button className="btn btn-primary btn-block" onClick={() => this.addEntryToDb()}>
           Add
-          </button>
-        {show_success && <Alert variant="success" onClose={this.hideSuccess} dismissible>Entry added successfully</Alert>}
-        {show_fail && <Alert variant="danger" onClose={this.hideFail} dismissible>{add_warning}</Alert>}
+        </button>
+        {show_success && <Alert className="mt-2" variant="success" onClose={this.hideSuccess} dismissible>Entry added successfully</Alert>}
+        {show_fail && <Alert className="mt-2" variant="danger" onClose={this.hideFail} dismissible>{add_warning}</Alert>}
       </div>
     );
   }
