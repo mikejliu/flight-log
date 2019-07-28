@@ -23,7 +23,7 @@ class UploadImageForm extends Component {
 
     formData.append("avatar", this.state.selectedImg);
     formData.append("flight_id", this.props.flight_id);
-    axios.post("http://localhost:3001/api/uploadImage", formData).then(function (response) {
+    axios.post("/api/uploadImage", formData).then(function (response) {
       if (response.data.success) {
         this.setState({ show_success: true });
         this.setState({ uploading: false });

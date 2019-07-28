@@ -23,7 +23,7 @@ class Public extends Component {
     e.target.classList.add('active');
     this.setState({ view_public: true });
     var publicUsername = e.target.id;
-    axios.get("http://localhost:3001/api/getPublicLog", {
+    axios.get("/api/getPublicLog", {
       params: { username: publicUsername }
     }).then(function (response) {
       this.setState({ public_log: response.data.data });

@@ -12,7 +12,7 @@ class Image extends Component {
   deleteImageFromDb = e => {
     this.setState({ deleting: true });
     var idToDelete = e.target.parentNode.id;
-    axios.delete("http://localhost:3001/api/deleteImage", {
+    axios.delete("/api/deleteImage", {
       data: {
         id: idToDelete
       }

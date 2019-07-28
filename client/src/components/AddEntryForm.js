@@ -31,7 +31,7 @@ class AddEntryForm extends Component {
     this.setState({ show_success: false });
     this.setState({ show_fail: false });
 
-    axios.post("http://localhost:3001/api/addEntry", {
+    axios.post("/api/addEntry", {
 
       date: this.state.input_date.toDateString(),
       airline: this.state.input_airline,

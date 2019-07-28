@@ -18,7 +18,7 @@ class Entry extends Component {
   deleteEntryFromDb = e => {
     this.setState({ deleting: true });
     var idToDelete = e.target.parentNode.parentNode.id;
-    axios.delete("http://localhost:3001/api/deleteEntry", {
+    axios.delete("/api/deleteEntry", {
       data: {
         id: idToDelete
       }
@@ -44,7 +44,7 @@ class Entry extends Component {
 
   getImageFromDb = () => {
     this.setState({ loading_image: true });
-    axios.get("http://localhost:3001/api/getImage", {
+    axios.get("/api/getImage", {
       params: { flight_id: this.props.dat._id }
     }).then(function (response) {
       this.setState({ loading_image: false });

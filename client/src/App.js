@@ -51,7 +51,7 @@ class App extends Component {
   }
 
   getEntryFromDb = () => {
-    axios.get("http://localhost:3001/api/getEntry").then(function (response) {
+    axios.get("/api/getEntry").then(function (response) {
       this.setState({ data: response.data.data })
     }.bind(this))
       .catch(function (error) {
@@ -60,25 +60,25 @@ class App extends Component {
   }
 
   getDataFromDb = () => {
-    axios.get("http://localhost:3001/api/getPublic").then(function (response) {
+    axios.get("/api/getPublic").then(function (response) {
       this.setState({ is_public: response.data.data[0].public });
     }.bind(this))
       .catch(function (error) {
         console.log(error);
       });
-    axios.get("http://localhost:3001/api/getPublicUsers"
+    axios.get("/api/getPublicUsers"
     ).then(function (response) {
       this.setState({ public_users: response.data.data })
     }.bind(this))
       .catch(function (error) {
         console.log(error);
       });
-    axios.get("http://localhost:3001/api/getCurrentAirport").then(function (response) {
+    axios.get("/api/getCurrentAirport").then(function (response) {
       this.setState({ current_airport: response.data.data[0].airport });
       if (this.state.current_airport === null || this.state.current_airport === "") {
         this.setState({ current_airport_users: [] });
       } else {
-        axios.get("http://localhost:3001/api/getAirportUsers", {
+        axios.get("/api/getAirportUsers", {
           params: { airport: this.state.current_airport }
         }).then(function (response) {
           this.setState({ current_airport_users: response.data.data })
@@ -95,7 +95,7 @@ class App extends Component {
   };
 
   submitCurrentAirport = () => {
-    axios.post("http://localhost:3001/api/submitCurrentAirport", {
+    axios.post("/api/submitCurrentAirport", {
       update: { airport: this.state.input_current_airport }
     }).then(function (response) {
       if (response.data.success) {
@@ -109,7 +109,7 @@ class App extends Component {
 
   leaveCurrentAirport = () => {
     this.setState({ input_current_airport: '' });
-    axios.post("http://localhost:3001/api/leaveCurrentAirport")
+    axios.post("/api/leaveCurrentAirport")
       .then(function (response) {
         if (response.data.success) {
           this.getDataFromDb();
@@ -121,7 +121,7 @@ class App extends Component {
   }
 
   changePublic = () => {
-    axios.post("http://localhost:3001/api/changePublic", {
+    axios.post("/api/changePublic", {
       update: { public: !this.state.is_public }
     }).then(function (response) {
       if (response.data.success) {
@@ -136,7 +136,7 @@ class App extends Component {
   createUser = (username, password) => {
     this.setState({ show_create_fail: false });
     this.setState({ show_create_success: false });
-    axios.post("http://localhost:3001/api/createUser", {
+    axios.post("/api/createUser", {
       username: username,
       password: password
     }).then(function (response) {
@@ -155,7 +155,7 @@ class App extends Component {
 
   login = (username, password) => {
     this.setState({ show_login_fail: false });
-    axios.post("http://localhost:3001/api/login", {
+    axios.post("/api/login", {
       username: username,
       password: password
     }).then(function (response) {
@@ -193,7 +193,7 @@ class App extends Component {
   }
 
   logout = () => {
-    axios.get("http://localhost:3001/api/logout").then(function (response) {
+    axios.get("/api/logout").then(function (response) {
       if (!response.data.success) {
         console.log(response.data.error);
       } else {
