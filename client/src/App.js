@@ -115,6 +115,7 @@ class App extends Component {
   }
 
   leaveCurrentAirport = () => {
+    this.setState({ show_update_airport_fail: false });
     this.setState({ input_current_airport: '' });
     axios.post("/api/leaveCurrentAirport")
       .then(function (response) {
