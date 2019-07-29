@@ -107,7 +107,7 @@ class Public extends Component {
                   <th><SortButton sort={this.sort} text="To" name="sort_to" /></th>
                   <th><SortButton sort={this.sort} text="Aircraft Type" name="sort_aircraft" /></th>
                   <th><SortButton sort={this.sort} text="Aircraft Reg" name="sort_reg" /></th>
-                  <th>Show Image</th>
+                  <th>View Image</th>
                 </tr>
               </thead>
               <tbody>

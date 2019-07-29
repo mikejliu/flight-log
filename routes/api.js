@@ -32,7 +32,7 @@ router.post('/addEntry', (req, res) => {
   data.reg = reg;
   data.username = req.session.username;
   data.save((err, data) => {
-    if (err) return res.json({ success: false, error: err });
+    if (err) return res.json({ success: false, error: 'Cannot add entry' });
     return res.json({ success: true });
   });
 });
@@ -61,10 +61,13 @@ router.post('/uploadImage', function (req, res) {
   var newItem = new Image();
   newItem.flight_id = req.body.flight_id;
   var file = req.file;
+  if (typeof file === 'undefined') {
+    return res.json({ success: false, error: 'Invalid input' });
+  }
   newItem.img.data = fs.readFileSync(file.path);
   newItem.img.contentType = file.mimetype;
   newItem.save((err, data) => {
-    if (err) return res.json({ success: false, error: err });
+    if (err) return res.json({ success: false, error: 'Cannot upload image' });
     return res.json({ success: true, data: data });
   });
 });
@@ -97,12 +100,12 @@ router.post('/submitCurrentAirport', (req, res) => {
   if (isInvalid(update.airport)) {
     return res.json({
       success: false,
-      error: 'INVALID INPUTS'
+      error: 'Invalid input'
     });
   }
   var username = req.session.username;
   User.findOneAndUpdate({ 'username': username }, update, err => {
-    if (err) return res.json({ success: false, error: err });
+    if (err) return res.json({ success: false, error: 'Cannot update current airport' });
     return res.json({ success: true });
   });
 });
@@ -160,7 +163,7 @@ router.post('/createUser', (req, res) => {
   if (isInvalid(username) || isInvalid(password)) {
     return res.json({
       success: false,
-      error: 'Invalid username or password.'
+      error: 'Invalid username or password'
     });
   }
   data.username = username;
@@ -169,8 +172,8 @@ router.post('/createUser', (req, res) => {
   data.public = false;
   data.save(err => {
     if (err) {
-      if (err.code === 11000) return res.json({ success: false, error: 'Username already exists.' });
-      return res.json({ success: false, error: 'Cannot create user.' });
+      if (err.code === 11000) return res.json({ success: false, error: 'Username already exists' });
+      return res.json({ success: false, error: 'Cannot create user' });
     }
     return res.json({ success: true });
   });
@@ -181,7 +184,7 @@ router.post('/login', (req, res) => {
   if (isInvalid(username) || isInvalid(password)) {
     return res.json({
       success: false,
-      error: 'Invalid username or password.'
+      error: 'Invalid username or password'
     });
   }
   User.authenticate(req.body.username, req.body.password, (err, user) => {

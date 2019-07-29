@@ -63,10 +63,19 @@ class Entry extends Component {
     this.setState({ upload_image: true });
   }
 
+  uploadFromView = () => {
+    this.setState({ view_image: false });
+    this.setState({ upload_image: true });
+  }
 
+  viewFromUpload = () => {
+    this.setState({ upload_image: false });
+    this.setState({ view_image: true });
+    this.getImageFromDb();
+  }
 
   render() {
-    var dat = this.props.dat;
+    var { dat, own } = this.props;
     var { images, view_image, upload_image, loading_image, deleting } = this.state;
     return (
       <>
@@ -78,9 +87,9 @@ class Entry extends Component {
           <td>{dat.to}</td>
           <td>{dat.aircraft}</td>
           <td>{dat.reg}</td>
-          {this.props.own && <td><button className="btn btn-primary btn-sm" onClick={this.showUploader}>Upload Image</button></td>}
-          <td><button className="btn btn-primary btn-sm" onClick={this.showImage}>Show Image</button></td>
-          {this.props.own && <td><Button variant="danger" size="sm" disabled={deleting} onClick={this.deleteEntryFromDb}>{deleting ? 'Deleting...' : 'Delete'}</Button></td>}
+          {own && <td><button className="btn btn-primary btn-sm" onClick={this.showUploader}>Upload</button></td>}
+          <td><button className="btn btn-primary btn-sm" onClick={this.showImage}>View</button></td>
+          {own && <td><Button variant="danger" size="sm" disabled={deleting} onClick={this.deleteEntryFromDb}>{deleting ? 'Deleting...' : 'Delete'}</Button></td>}
         </tr>
         <Modal show={view_image} onHide={this.hideImage}>
           <Modal.Header closeButton>
@@ -90,9 +99,10 @@ class Entry extends Component {
             {loading_image ? "Loading..." : images.length <= 0
               ? "No image"
               : images.map(img => (
-                <Image img={img} getImageFromDb={this.getImageFromDb} own={this.props.own} />
+                <Image img={img} getImageFromDb={this.getImageFromDb} own={own} />
               ))
             }
+            {own && <Button className="d-block mx-auto mt-2" variant="primary" onClick={this.uploadFromView}>Upload Image</Button>}
           </Modal.Body>
         </Modal>
         <Modal show={upload_image} onHide={this.hideUploader}>
@@ -101,6 +111,7 @@ class Entry extends Component {
           </Modal.Header>
           <Modal.Body>
             <UploadImageForm flight_id={dat._id} />
+            <Button className="d-block mx-auto mt-2" variant="primary" onClick={this.viewFromUpload}>View Image</Button>
           </Modal.Body>
         </Modal>
       </>

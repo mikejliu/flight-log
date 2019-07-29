@@ -34,10 +34,12 @@ class App extends Component {
     public_users: [],
     login_warning: "",
     create_user_warning: "",
+    update_airport_warning: "",
     current_user: null,
     show_create_success: false,
     show_create_fail: false,
     show_login_fail: false,
+    show_update_airport_fail: false,
     planes_index: planesIndex
   };
 
@@ -95,11 +97,16 @@ class App extends Component {
   };
 
   submitCurrentAirport = () => {
+    this.setState({ show_update_airport_fail: false });
     axios.post("/api/submitCurrentAirport", {
       update: { airport: this.state.input_current_airport }
     }).then(function (response) {
       if (response.data.success) {
+        this.setState({ update_airport_warning: "" });
         this.getDataFromDb();
+      } else {
+        this.setState({ update_airport_warning: response.data.error });
+        this.setState({ show_update_airport_fail: true });
       }
     }.bind(this))
       .catch(function (error) {
@@ -141,11 +148,11 @@ class App extends Component {
       password: password
     }).then(function (response) {
       if (!response.data.success) {
-        this.setState({ show_create_fail: true });
         this.setState({ create_user_warning: response.data.error });
+        this.setState({ show_create_fail: true });
       } else {
         this.setState({ show_create_success: true });
-        this.setState({ create_user_warning: "User created successfully. Please login." });
+        this.setState({ create_user_warning: "" });
       }
     }.bind(this))
       .catch(function (error) {
@@ -160,8 +167,8 @@ class App extends Component {
       password: password
     }).then(function (response) {
       if (!response.data.success) {
-        this.setState({ show_login_fail: true });
         this.setState({ login_warning: response.data.error });
+        this.setState({ show_login_fail: true });
       } else {
         this.getEntryFromDb();
         this.getDataFromDb();
@@ -190,6 +197,10 @@ class App extends Component {
 
   hideLoginFail = () => {
     this.setState({ show_login_fail: false });
+  }
+
+  hideUpdateAirportFail = () => {
+    this.setState({ show_update_airport_fail: false });
   }
 
   logout = () => {
@@ -242,7 +253,7 @@ class App extends Component {
   }
 
   render() {
-    var { data, current_airport, current_airport_users, logged_in, is_public, public_users, current_user, login_warning, create_user_warning, show_create_success, show_create_fail, show_login_fail, planes_index } = this.state;
+    var { data, current_airport, current_airport_users, logged_in, is_public, public_users, current_user, login_warning, create_user_warning, update_airport_warning, show_create_success, show_create_fail, show_login_fail, show_update_airport_fail, planes_index } = this.state;
     if (logged_in) {
       return (
         <div>
@@ -266,7 +277,7 @@ class App extends Component {
                   <th><SortButton sort={this.sort} text="Aircraft Type" name="sort_aircraft" /></th>
                   <th><SortButton sort={this.sort} text="Aircraft Reg" name="sort_reg" /></th>
                   <th>Upload Image</th>
-                  <th>Show Image</th>
+                  <th>View Image</th>
                   <th>Delete</th>
                 </tr>
               </thead>
@@ -297,7 +308,7 @@ class App extends Component {
                 type="text"
                 className="form-control mr-sm-2"
                 onChange={e => this.setState({ input_current_airport: e.target.value })}
-                placeholder="Current Airport"
+                placeholder="ORD"
               />
               <button className="btn btn-primary btn-sm mr-sm-2" onClick={this.submitCurrentAirport}>
                 {(current_airport !== null && current_airport !== '') ? 'Update' : 'Set'}
@@ -309,6 +320,7 @@ class App extends Component {
               }
             </div>
             {(current_airport === null || current_airport === '') && <h5 className="mt-2">Set current airport to see users near you</h5>}
+            {show_update_airport_fail && <Alert className="mt-2" variant="danger" onClose={this.hideUpdateAirportFail} dismissible>{update_airport_warning}</Alert>}
           </div>
 
           {(current_airport !== null && current_airport !== '') &&
@@ -368,7 +380,7 @@ class App extends Component {
                 >
                   Create User
                 </button>
-                {show_create_success && <Alert variant="success" onClose={this.hideCreateSuccess} dismissible>{create_user_warning}</Alert>}
+                {show_create_success && <Alert variant="success" onClose={this.hideCreateSuccess} dismissible>User created successfully. Please login.</Alert>}
                 {show_create_fail && <Alert variant="danger" onClose={this.hideCreateFail} dismissible>{create_user_warning}</Alert>}
               </div>
 

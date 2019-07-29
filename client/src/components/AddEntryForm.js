@@ -30,9 +30,7 @@ class AddEntryForm extends Component {
   addEntryToDb = () => {
     this.setState({ show_success: false });
     this.setState({ show_fail: false });
-
     axios.post("/api/addEntry", {
-
       date: this.state.input_date.toDateString(),
       airline: this.state.input_airline,
       flight_number: this.state.input_flight_number,
@@ -40,7 +38,6 @@ class AddEntryForm extends Component {
       to: this.state.input_to,
       aircraft: this.state.input_aircraft,
       reg: this.state.input_reg
-
     }).then(function (response) {
       if (!response.data.success) {
         this.setState({ add_warning: response.data.error });
