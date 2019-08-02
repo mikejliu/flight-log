@@ -309,7 +309,7 @@ class App extends Component {
                 type="text"
                 className="form-control mr-sm-2"
                 onChange={e => this.setState({ input_current_airport: e.target.value })}
-                placeholder="ORD"
+                placeholder="Current Airport"
               />
               <button className="btn btn-primary btn-sm mr-sm-2" onClick={this.submitCurrentAirport}>
                 {(current_airport !== null && current_airport !== '') ? 'Update' : 'Set'}

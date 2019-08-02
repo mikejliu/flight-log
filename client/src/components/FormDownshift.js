@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { Component } from "react";
+import Downshift from 'downshift'
 import styled from '@emotion/styled'
 import matchSorter from 'match-sorter'
-import airports from './airports.json'
-import airlines from './airlines.json'
-import planes from './planes.json'
+import airports from '../data/airports.json'
+import airlines from '../data/airlines.json'
+import planes from '../data/planes.json'
 
 const Item = styled('li')(
   {
@@ -149,16 +150,77 @@ const airlineToString = i => (i ? i.iata !== "" ? i.name.toString().concat(' (',
 
 const planeToString = i => (i ? i.icao !== "" ? i.name.toString().concat(' (', i.icao, ')') : i.name.toString() : '')
 
-export {
-  Item,
-  Menu,
-  ControllerButton,
-  ArrowIcon,
-  XIcon,
-  getAirports,
-  getAirlines,
-  getPlanes,
-  airportToString,
-  airlineToString,
-  planeToString
+class FormDownshift extends Component {
+  render() {
+    var { handleDownshiftChange, name } = this.props;
+    var getItems = (name === 'input_from' || name === 'input_to') ? getAirports : name === 'input_airline' ? getAirlines : getPlanes;
+    var itemToString = (name === 'input_from' || name === 'input_to') ? airportToString : name === 'input_airline' ? airlineToString : planeToString;
+    var placeholder = name === 'input_from' ? 'From Airport' : name === 'input_to' ? 'To Airport' : name === 'input_airline' ? 'Airline' : 'Aircraft Type';
+    return (
+      <Downshift
+        onChange={selection =>
+          handleDownshiftChange(name, itemToString(selection))
+        }
+        itemToString={itemToString}
+      >
+        {({
+          getLabelProps,
+          getInputProps,
+          getToggleButtonProps,
+          getMenuProps,
+          getItemProps,
+          isOpen,
+          clearSelection,
+          selectedItem,
+          inputValue,
+          highlightedIndex,
+        }) => (
+            <div style={{ width: '100%', margin: 'auto' }}>
+              <div style={{ position: 'relative' }}>
+                <input
+                  className="form-control"
+                  {...getInputProps({
+                    isOpen,
+                    placeholder: placeholder,
+                  })}
+                />
+                {selectedItem ? (
+                  <ControllerButton
+                    onClick={clearSelection}
+                    aria-label="clear selection"
+                  >
+                    <XIcon />
+                  </ControllerButton>
+                ) : (
+                    <ControllerButton {...getToggleButtonProps()}>
+                      <ArrowIcon isOpen={isOpen} />
+                    </ControllerButton>
+                  )}
+              </div>
+              <div style={{ position: 'relative', zIndex: '10' }}>
+                <Menu {...getMenuProps({ isOpen })}>
+                  {isOpen
+                    ? getItems(inputValue).map((item, index) => (
+                      <Item
+                        key={item.id}
+                        {...getItemProps({
+                          item,
+                          index,
+                          isActive: highlightedIndex === index,
+                          isSelected: selectedItem === item,
+                        })}
+                      >
+                        {itemToString(item)}
+                      </Item>
+                    ))
+                    : null}
+                </Menu>
+              </div>
+            </div>
+          )}
+      </Downshift>
+    )
+  }
 }
+
+export default FormDownshift
