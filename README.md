@@ -25,3 +25,7 @@ Then go to http://localhost:3001/.
 - [ ] Get current airport from user's location
 - [ ] Improve mobile-friendliness
 - [ ] Frontend and API testing
+
+## Acknowledgement
+
+The Airport, Airline and Plane Databases are developed by [OpenFlights](https://openflights.org/data.html). The databases are adapted and made available under the [Open Database License](http://opendatacommons.org/licenses/odbl/1.0/). Any rights in individual contents of the databases are licensed under the [Database Contents License](http://opendatacommons.org/licenses/dbcl/1.0/).
