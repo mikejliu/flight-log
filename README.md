@@ -21,7 +21,7 @@ Then go to http://localhost:3001/.
 
 ## Future Improvements
 
-- [ ] Autocomplete/dropdown for airport, airline and aircraft type
+- [x] Autocomplete/dropdown for airport, airline and aircraft type
 - [ ] Get current airport from user's location
 - [ ] Improve mobile-friendliness
 - [ ] Frontend and API testing
