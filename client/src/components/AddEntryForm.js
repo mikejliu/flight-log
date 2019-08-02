@@ -3,6 +3,7 @@ import axios from "axios";
 import Alert from 'react-bootstrap/Alert';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import DownshiftDemo from "../DownshiftDemo";
 axios.defaults.withCredentials = true;
 
 class AddEntryForm extends Component {
@@ -86,38 +87,41 @@ class AddEntryForm extends Component {
           </div>
           <div className="form-group col-md-4">
             <label for="input_from">From</label>
-            <input
+            <DownshiftDemo data="airports" />
+            {/* <input
               id="input_from"
               name="input_from"
               className="form-control"
               type="text"
               onChange={this.handleInputChange}
               placeholder="PEK"
-            />
+            /> */}
           </div>
           <div className="form-group col-md-4">
             <label for="input_to">To</label>
-            <input
+            <DownshiftDemo data="airports" />
+            {/* <input
               id="input_to"
               name="input_to"
               className="form-control"
               type="text"
               onChange={this.handleInputChange}
               placeholder="ORD"
-            />
+            /> */}
           </div>
         </div>
         <div className="form-row">
           <div className="form-group col-md-6">
             <label for="input_airline">Airline</label>
-            <input
+            <DownshiftDemo data="airlines" />
+            {/* <input
               id="input_airline"
               name="input_airline"
               className="form-control"
               type="text"
               onChange={this.handleInputChange}
               placeholder="American Airlines"
-            />
+            /> */}
           </div>
           <div className="form-group col-md-6">
             <label for="input_flight_number">Flight Number</label>
@@ -134,14 +138,15 @@ class AddEntryForm extends Component {
         <div className="form-row">
           <div className="form-group col-md-6">
             <label for="input_aircraft">Aircraft Type</label>
-            <input
+            <DownshiftDemo data="planes" />
+            {/* <input
               id="input_aircraft"
               name="input_aircraft"
               className="form-control"
               type="text"
               onChange={this.handleInputChange}
               placeholder="B772"
-            />
+            /> */}
           </div>
           <div className="form-group col-md-6">
             <label for="input_reg">Aircraft Reg</label>
