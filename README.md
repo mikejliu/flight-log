@@ -22,7 +22,8 @@ Then go to http://localhost:3001/.
 ## Future Improvements
 
 - [x] Autocomplete/dropdown for airport, airline and aircraft type
-- [ ] Get current airport from user's location
+- [x] Get current airport from user's location
+- [ ] Generate paths string from flight log to create maps at [Great Circle Mapper](http://www.gcmap.com/mapui)
 - [ ] Improve mobile-friendliness
 - [ ] Frontend and API testing
 

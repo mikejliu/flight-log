@@ -84,19 +84,27 @@ class Public extends Component {
       <div className="flight-log-section">
         <h1>Public Users</h1>
         <div id="public_users_list" className="list-group">
-          {public_users.length <= 0
-            ? <button type="button" className="list-group-item list-group-item-action" disabled>
+          {public_users.length === 0
+            ?
+            <button type="button" className="list-group-item list-group-item-action" disabled>
               No public users
             </button>
-            : public_users.map(user => (
-              <button type="button" className="list-group-item list-group-item-action" onClick={this.viewPublic} id={user.username}>
-                {user.username}
+            :
+            <>
+              <button type="button" className="list-group-item list-group-item-action" disabled>
+                Select a user to view their flight log
               </button>
-            ))
+              {public_users.map(user => (
+                <button type="button" className="list-group-item list-group-item-action" onClick={this.viewPublic} id={user.username}>
+                  {user.username}
+                </button>
+              ))}
+            </>
           }
         </div>
         {view_public
-          ? (
+          &&
+          <>
             <Table striped bordered hover>
               <thead>
                 <tr>
@@ -119,12 +127,10 @@ class Public extends Component {
                 }
               </tbody>
             </Table>
-          ) : (<h5 className="mt-2">Select a user to view their flight log</h5>)
-        }
-        {view_public &&
-          <button className="btn btn-primary btn-sm" onClick={this.hidePublic}>
-            Hide
-          </button>
+            <button className="btn btn-primary btn-sm" onClick={this.hidePublic}>
+              Hide
+            </button>
+          </>
         }
       </div>
     );

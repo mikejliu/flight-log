@@ -11,6 +11,7 @@ import plane2 from './images/plane2.jpg';
 import plane3 from './images/plane3.jpg';
 import plane4 from './images/plane4.jpg';
 import plane5 from './images/plane5.jpg';
+import CurrentAirport from "./components/CurrentAirport";
 axios.defaults.withCredentials = true;
 
 var planes = [plane1, plane2, plane3, plane4, plane5];
@@ -25,7 +26,6 @@ class App extends Component {
   state = {
     data: [],
     current_airport: null,
-    input_current_airport: null,
     current_airport_users: [],
     user_username: null,
     user_password: null,
@@ -34,12 +34,10 @@ class App extends Component {
     public_users: [],
     login_warning: "",
     create_user_warning: "",
-    update_airport_warning: "",
     current_user: null,
     show_create_success: false,
     show_create_fail: false,
     show_login_fail: false,
-    show_update_airport_fail: false,
     planes_index: planesIndex
   };
 
@@ -95,38 +93,6 @@ class App extends Component {
       });
 
   };
-
-  submitCurrentAirport = () => {
-    this.setState({ show_update_airport_fail: false });
-    axios.post("/api/submitCurrentAirport", {
-      update: { airport: this.state.input_current_airport }
-    }).then(function (response) {
-      if (response.data.success) {
-        this.setState({ update_airport_warning: "" });
-        this.getDataFromDb();
-      } else {
-        this.setState({ update_airport_warning: response.data.error });
-        this.setState({ show_update_airport_fail: true });
-      }
-    }.bind(this))
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-
-  leaveCurrentAirport = () => {
-    this.setState({ show_update_airport_fail: false });
-    this.setState({ input_current_airport: '' });
-    axios.post("/api/leaveCurrentAirport")
-      .then(function (response) {
-        if (response.data.success) {
-          this.getDataFromDb();
-        }
-      }.bind(this))
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
 
   changePublic = () => {
     axios.post("/api/changePublic", {
@@ -200,10 +166,6 @@ class App extends Component {
     this.setState({ show_login_fail: false });
   }
 
-  hideUpdateAirportFail = () => {
-    this.setState({ show_update_airport_fail: false });
-  }
-
   logout = () => {
     axios.get("/api/logout").then(function (response) {
       if (!response.data.success) {
@@ -254,7 +216,23 @@ class App extends Component {
   }
 
   render() {
-    var { data, current_airport, current_airport_users, logged_in, is_public, public_users, current_user, login_warning, create_user_warning, update_airport_warning, show_create_success, show_create_fail, show_login_fail, show_update_airport_fail, planes_index } = this.state;
+    var { 
+      data, 
+      current_airport, 
+      current_airport_users, 
+      logged_in, 
+      is_public, 
+      public_users, 
+      current_user, 
+      login_warning, 
+      create_user_warning, 
+      show_create_success, 
+      show_create_fail, 
+      show_login_fail, 
+      planes_index,
+      user_username,
+      user_password
+    } = this.state;
     if (logged_in) {
       return (
         <div>
@@ -302,27 +280,7 @@ class App extends Component {
 
           <Public public_users={public_users} />
 
-          <div className="flight-log-section">
-            <h1>Your Current Airport is {(current_airport !== null && current_airport !== '') ? <span>{current_airport}</span> : 'not set'}</h1>
-            <div className="form-inline">
-              <input
-                type="text"
-                className="form-control mr-sm-2"
-                onChange={e => this.setState({ input_current_airport: e.target.value })}
-                placeholder="Current Airport"
-              />
-              <button className="btn btn-primary btn-sm mr-sm-2" onClick={this.submitCurrentAirport}>
-                {(current_airport !== null && current_airport !== '') ? 'Update' : 'Set'}
-              </button>
-              {(current_airport !== null && current_airport !== '') &&
-                <button className="btn btn-primary btn-sm" onClick={this.leaveCurrentAirport}>
-                  Leave this airport
-                </button>
-              }
-            </div>
-            {(current_airport === null || current_airport === '') && <h5 className="mt-2">Set current airport to see users near you</h5>}
-            {show_update_airport_fail && <Alert className="mt-2" variant="danger" onClose={this.hideUpdateAirportFail} dismissible>{update_airport_warning}</Alert>}
-          </div>
+          <CurrentAirport current_airport={current_airport} getDataFromDb={this.getDataFromDb} />
 
           {(current_airport !== null && current_airport !== '') &&
             <div className="flight-log-section">
@@ -377,7 +335,7 @@ class App extends Component {
                 </div>
                 <button
                   className="btn btn-primary mb-2"
-                  onClick={() => this.createUser(this.state.user_username, this.state.user_password)}
+                  onClick={() => this.createUser(user_username, user_password)}
                 >
                   Create User
                 </button>
@@ -411,7 +369,7 @@ class App extends Component {
                 </div>
                 <button
                   className="btn btn-primary mb-2"
-                  onClick={() => this.login(this.state.user_username, this.state.user_password)}
+                  onClick={() => this.login(user_username, user_password)}
                 >
                   Login
                 </button>
