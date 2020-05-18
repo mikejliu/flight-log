@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import axios from "axios";
 import Entry from './Entry';
 import SortButton from './SortButton';
 import Table from 'react-bootstrap/Table';
+import axios from "axios";
 axios.defaults.withCredentials = true;
 
 class Public extends Component {

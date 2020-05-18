@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import axios from "axios";
+import FormDownshift from "./FormDownshift";
 import Alert from 'react-bootstrap/Alert';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import FormDownshift from "./FormDownshift";
+import axios from "axios";
 axios.defaults.withCredentials = true;
 
 class AddEntryForm extends Component {

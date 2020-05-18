@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import axios from "axios";
-import UploadImageForm from "./UploadImageForm";
 import Image from "./Image";
-import Modal from 'react-bootstrap/Modal'
+import UploadImageForm from "./UploadImageForm";
 import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal'
+import axios from "axios";
 axios.defaults.withCredentials = true;
 
 class Entry extends Component {
