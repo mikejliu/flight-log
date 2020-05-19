@@ -32,8 +32,7 @@ Note: Path map feature is not available locally. Please use the demo above.
 
 - [x] Autocomplete/dropdown for airport, airline and aircraft type
 - [x] Get current airport from user's location
-- [x] Path map
-- [ ] Path map customization 
+- [x] Static path map with zoom options
 - [ ] Improve mobile-friendliness
 - [ ] Frontend and API testing
 
