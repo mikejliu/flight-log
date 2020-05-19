@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import AddEntryForm from './components/AddEntryForm';
 import CurrentAirport from "./components/CurrentAirport";
 import Entry from './components/Entry';
+import PathMap from './components/PathMap';
 import Public from './components/Public';
 import SortButton from './components/SortButton';
 import Alert from 'react-bootstrap/Alert';
@@ -272,6 +273,11 @@ class App extends Component {
           </div>
 
           <div className="flight-log-section">
+            <h1>Your Flight Paths</h1>
+            <PathMap data={data} />
+          </div>
+
+          <div className="flight-log-section">
             <h1>Your Flight Log is Currently
               {is_public ? <span className="text-success"> Public</span> : <span className="text-danger"> Private</span>}
             </h1>
@@ -295,6 +301,7 @@ class App extends Component {
               </ul>
             </div>
           }
+
         </div>
       );
     } else {
@@ -353,7 +360,7 @@ class App extends Component {
                     className="form-control"
                     type="text"
                     onChange={e => this.setState({ user_username: e.target.value })}
-                    placeholder="Username"
+                    placeholder="user1"
                   />
                 </div>
                 <div className="form-group">
@@ -364,7 +371,7 @@ class App extends Component {
                     className="form-control"
                     type="password"
                     onChange={e => this.setState({ user_password: e.target.value })}
-                    placeholder="Password"
+                    placeholder="pwd1"
                   />
                 </div>
                 <button

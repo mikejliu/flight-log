@@ -8,7 +8,11 @@ var FlightSchema = new Schema(
     airline: String,
     flight_number: String,
     from: String,
+    from_lat: String,
+    from_long: String,
     to: String,
+    to_lat: String,
+    to_long: String,
     aircraft: String,
     reg: String,
     username: String

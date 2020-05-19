@@ -12,7 +12,11 @@ class AddEntryForm extends Component {
     input_airline: null,
     input_flight_number: null,
     input_from: null,
+    input_from_lat: null,
+    input_from_long: null,
     input_to: null,
+    input_to_lat: null,
+    input_to_long: null,
     input_aircraft: null,
     input_reg: null,
     add_warning: "",
@@ -36,7 +40,11 @@ class AddEntryForm extends Component {
       airline: this.state.input_airline,
       flight_number: this.state.input_flight_number,
       from: this.state.input_from,
+      from_lat: this.state.input_from_lat,
+      from_long: this.state.input_from_long,
       to: this.state.input_to,
+      to_lat: this.state.input_to_lat,
+      to_long: this.state.input_to_long,
       aircraft: this.state.input_aircraft,
       reg: this.state.input_reg
     }).then(function (response) {
@@ -69,7 +77,15 @@ class AddEntryForm extends Component {
     });
   }
 
-  handleDownshiftChange = (name, value) => {
+  handleDownshiftChange = (name, value, lat, long) => {
+    if (name === 'input_from' || name === 'input_to') {
+      this.setState({
+        [name.concat('_lat')]: lat
+      });
+      this.setState({
+        [name.concat('_long')]: long
+      });
+    }
     this.setState({
       [name]: value
     });

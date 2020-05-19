@@ -16,7 +16,7 @@ router.get('/getEntry', (req, res) => {
 
 router.post('/addEntry', (req, res) => {
   var data = new Flight();
-  var { date, airline, flight_number, from, to, aircraft, reg } = req.body;
+  var { date, airline, flight_number, from, from_lat, from_long, to, to_lat, to_long, aircraft, reg } = req.body;
   if (isInvalid(date) || isInvalid(airline) || isInvalid(flight_number) || isInvalid(from) || isInvalid(to) || isInvalid(aircraft) || isInvalid(reg)) {
     return res.json({
       success: false,
@@ -27,7 +27,11 @@ router.post('/addEntry', (req, res) => {
   data.airline = airline;
   data.flight_number = flight_number;
   data.from = from;
+  data.from_lat = from_lat;
+  data.from_long = from_long;
   data.to = to;
+  data.to_lat = to_lat;
+  data.to_long = to_long;
   data.aircraft = aircraft;
   data.reg = reg;
   data.username = req.session.username;

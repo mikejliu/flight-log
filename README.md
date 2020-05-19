@@ -6,6 +6,8 @@ A digital flight log for all the AvGeeks. Users can add flight entries, upload i
 
 Demo is available [here](https://dry-mountain-16931.herokuapp.com/).
 
+Please feel free to use this demo account: username: user1, password: pwd1.
+
 ## Run Locally
 
 Make sure you have installed Node.js and npm. Then run the following commands:
@@ -23,7 +25,8 @@ Then go to http://localhost:3001/.
 
 - [x] Autocomplete/dropdown for airport, airline and aircraft type
 - [x] Get current airport from user's location
-- [ ] Generate paths string from flight log to create maps at [Great Circle Mapper](http://www.gcmap.com/mapui)
+- [x] Path map
+- [ ] Path map customization 
 - [ ] Improve mobile-friendliness
 - [ ] Frontend and API testing
 

@@ -42,6 +42,11 @@ const airlineToString = i => (i ? i.iata !== "" ? i.name.toString().concat(' (',
 
 const planeToString = i => (i ? i.icao !== "" ? i.name.toString().concat(' (', i.icao, ')') : i.name.toString() : '')
 
+const airportToLat = i => (i ? i.lat ? i.lat.toString() : '' : '')
+
+const airportToLong = i => (i ? i.long ? i.long.toString() : '' : '')
+
+
 class FormDownshift extends Component {
   render() {
     var { handleDownshiftChange, name } = this.props;
@@ -51,7 +56,9 @@ class FormDownshift extends Component {
     return (
       <Downshift
         onChange={selection =>
-          handleDownshiftChange(name, itemToString(selection))
+          (name === 'input_from' || name === 'input_to') ?
+          handleDownshiftChange(name, itemToString(selection), airportToLat(selection), airportToLong(selection))
+          : handleDownshiftChange(name, itemToString(selection))
         }
         itemToString={itemToString}
       >
