@@ -6,7 +6,12 @@ A digital flight log for all the AvGeeks. Users can add flight entries, upload i
 
 Demo is available [here](https://dry-mountain-16931.herokuapp.com/).
 
-Please feel free to use this demo account: username: user1, password: pwd1.
+Please feel free to use this demo account: 
+
+```bash
+username: user1
+password: pwd1
+```
 
 ## Run Locally
 
@@ -20,6 +25,8 @@ $ cd .. && npm start
 ```
 
 Then go to http://localhost:3001/.
+
+Note: Path map feature is not available locally. Please use the demo above.
 
 ## Future Improvements
 
