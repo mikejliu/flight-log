@@ -6,6 +6,7 @@ import PathMap from './components/PathMap';
 import Public from './components/Public';
 import SortButton from './components/SortButton';
 import Alert from 'react-bootstrap/Alert';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Table from 'react-bootstrap/Table';
 import plane1 from './images/plane1.jpg';
 import plane2 from './images/plane2.jpg';
@@ -39,7 +40,8 @@ class App extends Component {
     show_create_success: false,
     show_create_fail: false,
     show_login_fail: false,
-    planes_index: planesIndex
+    planes_index: planesIndex,
+    path_map_option: "auto-path"
   };
 
   componentDidMount() {
@@ -178,6 +180,7 @@ class App extends Component {
         this.setState({ public_users: [] });
         this.setState({ input_date: new Date() });
         this.setState({ current_user: null });
+        this.setState({ path_map_option: "auto-path" });
       }
     }.bind(this))
       .catch(function (error) {
@@ -216,6 +219,10 @@ class App extends Component {
     }
   }
 
+  changePathMapOption = e => {
+    this.setState({ path_map_option: e.target.id });
+  }
+
   render() {
     var { 
       data, 
@@ -232,7 +239,8 @@ class App extends Component {
       show_login_fail, 
       planes_index,
       user_username,
-      user_password
+      user_password,
+      path_map_option
     } = this.state;
     if (logged_in) {
       return (
@@ -274,7 +282,12 @@ class App extends Component {
 
           <div className="flight-log-section">
             <h1>Your Flight Paths</h1>
-            <PathMap data={data} />
+            <ButtonGroup aria-label="Basic example">
+              <button className="btn btn-primary btn-sm" id="auto-path" onClick={this.changePathMapOption} disabled={path_map_option==="auto-path"}>Auto</button>
+              <button className="btn btn-primary btn-sm" id="us-path" onClick={this.changePathMapOption} disabled={path_map_option==="us-path"}>Continental US</button>
+              <button className="btn btn-primary btn-sm" id="world-path" onClick={this.changePathMapOption} disabled={path_map_option==="world-path"}>World</button>
+            </ButtonGroup>
+            <PathMap option={path_map_option} data={data} />
           </div>
 
           <div className="flight-log-section">
