@@ -13,6 +13,7 @@ import plane2 from './images/plane2.jpg';
 import plane3 from './images/plane3.jpg';
 import plane4 from './images/plane4.jpg';
 import plane5 from './images/plane5.jpg';
+import ReactGA from 'react-ga';
 import axios from "axios";
 axios.defaults.withCredentials = true;
 
@@ -45,6 +46,7 @@ class App extends Component {
   };
 
   componentDidMount() {
+    ReactGA.initialize('UA-167223358-1');
   }
 
   componentWillUnmount() {
