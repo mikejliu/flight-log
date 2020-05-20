@@ -47,6 +47,7 @@ class App extends Component {
 
   componentDidMount() {
     ReactGA.initialize('UA-167223358-1');
+    ReactGA.pageview(window.location.pathname + window.location.search);
   }
 
   componentWillUnmount() {
